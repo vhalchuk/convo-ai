@@ -8,11 +8,13 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install --no-cache-dir watchdog
+
 # Copy the rest of the application code
 COPY . .
 
 # Expose the server port
 EXPOSE 8000
 
-# Start the Python server
-CMD ["python", "main.py"]
+# Start the server with watchmedo for live reloading
+CMD ["watchmedo", "auto-restart", "--directory=.", "--pattern=*.py", "--recursive", "python", "main.py"]
