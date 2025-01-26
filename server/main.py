@@ -1,4 +1,3 @@
-import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 
@@ -18,5 +17,9 @@ server_address = ('0.0.0.0', 8000)  # Address and port
 httpd = HTTPServer(server_address, SimpleHTTPRequestHandler)
 
 print("Server running on http://0.0.0.0:8000...")
-# Run the server
-httpd.serve_forever()
+
+try:
+    httpd.serve_forever()
+except KeyboardInterrupt:
+    # Explicitly handle graceful shutdown
+    print("\nKeyboard interrupt received. Exiting...")
