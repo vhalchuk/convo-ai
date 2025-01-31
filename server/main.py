@@ -62,8 +62,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     "content": assistant_content
                 })
 
-                print("Messages after appending response:", messages)
-
                 # Send a successful response
                 response = {
                     "messages": messages
