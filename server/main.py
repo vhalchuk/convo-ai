@@ -1,7 +1,10 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import os
+from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError, AuthenticationError, RateLimitError
+
+load_dotenv()
 
 openai_api_key = os.getenv("OPENAI_API_KEY")  # Retrieve the API key from the environment variable
 client = OpenAI(api_key=openai_api_key)
