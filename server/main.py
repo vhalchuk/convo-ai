@@ -51,8 +51,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     messages=messages  # Pass the conversation history
                 )
 
-                print("Messages after appending response:", messages)
-
                 # Extract the assistant's response
                 assistant_content = completion.choices[0].message.content
 
