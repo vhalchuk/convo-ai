@@ -38,9 +38,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(400, "Invalid request: 'messages' field is required and must be an array")
                 return
 
-            # Debug: Print the extracted `messages`
-            print("Messages after extraction:", messages)  # Debug print
-
             # Check that all messages have the required structure
             for message in messages:
                 if not isinstance(message, dict) or 'role' not in message or 'content' not in message:
