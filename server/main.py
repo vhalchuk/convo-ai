@@ -44,8 +44,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     self.send_error(400, "Invalid message format: Each message must have 'role' and 'content'")
                     return
 
-            print("Messages before OpenAI API call:", messages)
-
             # Call the OpenAI API with the conversation so far
             try:
                 completion = client.chat.completions.create(
