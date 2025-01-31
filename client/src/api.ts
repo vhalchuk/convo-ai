@@ -1,14 +1,14 @@
-export async function messageAI(question: string) {
+import { ChatResponse, Message } from "./types.ts";
+
+export async function chat(messages: Message[]): Promise<ChatResponse> {
     const response = await fetch("/api", {
         method: "POST",
         body: JSON.stringify({
-            question,
+            messages,
         }),
     });
 
     const content = await response.json();
 
-    return content as {
-        response_message: string;
-    };
+    return content as ChatResponse;
 }

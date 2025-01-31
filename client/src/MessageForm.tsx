@@ -1,23 +1,22 @@
-import { messageAI } from "./api.ts";
+import invariant from "./utils/invariant.ts";
 
-export default function MessageForm() {
+type Props = {
+    onSubmit: (content: string) => void;
+};
+
+export default function MessageForm({ onSubmit }: Props) {
     return (
         <form
             onSubmit={async (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.currentTarget);
                 const message = formData.get("message") as string | undefined;
-
-                if (message) {
-                    const response = await messageAI(message);
-                    alert(response.response_message);
-
-                    // Reset the textarea value
-                    event.currentTarget.reset();
-                }
+                invariant(message, "Message must be defined");
+                onSubmit(message);
+                event.currentTarget.reset();
             }}
         >
-            <div className="bg-gray-700">
+            <div className="rounded-xl bg-gray-700">
                 <textarea
                     name="message"
                     placeholder="Message AI"
@@ -38,12 +37,6 @@ export default function MessageForm() {
                     }}
                 />
             </div>
-            <button
-                type="submit"
-                className="mt-2 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            >
-                Submit
-            </button>
         </form>
     );
 }
