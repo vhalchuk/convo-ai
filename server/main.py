@@ -69,8 +69,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps(response).encode('utf-8'))
 
-            # Debug: Final response being sent
-                print("Final response (messages) being sent to client:", messages)
 
             # Handle OpenAI API-specific errors
             except AuthenticationError:
