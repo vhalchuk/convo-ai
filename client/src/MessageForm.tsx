@@ -1,20 +1,19 @@
-import { messageAI } from "./api.ts";
+import invariant from "./utils/invariant.ts";
 
-export default function MessageForm() {
+type Props = {
+    onSubmit: (content: string) => void;
+};
+
+export default function MessageForm({ onSubmit }: Props) {
     return (
         <form
             onSubmit={async (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.currentTarget);
                 const message = formData.get("message") as string | undefined;
-
-                if (message) {
-                    const response = await messageAI(message);
-                    alert(response.response_message);
-
-                    // Reset the textarea value
-                    event.currentTarget.reset();
-                }
+                invariant(message, "Message must be defined");
+                onSubmit(message);
+                event.currentTarget.reset();
             }}
         >
             <div className="bg-gray-700">
