@@ -4,16 +4,18 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError, AuthenticationError, RateLimitError
 
+# Load environment variables from .env file
 load_dotenv()
 
-openai_api_key = os.getenv("OPENAI_API_KEY")  # Retrieve the API key from the environment variable
-client = OpenAI(api_key=openai_api_key)
+# Retrieve the API key from the environment variable
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
-# Set OpenAI API Key. You can use the environment variable "OPENAI_API_KEY" or assign it explicitly.
-if not openai_api_key or not openai_api_key.strip():  # Check if it is properly set
+# Check if the API key is valid
+if not openai_api_key or not openai_api_key.strip():  # Ensure the key isn't missing or blank
     raise ValueError("OPENAI_API_KEY environment variable is missing or invalid")
 
-# Optionally set it in case the environment variable is not being used automatically
+# Initialize the OpenAI client
+client = OpenAI(api_key=openai_api_key)
 
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
@@ -23,27 +25,50 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
 
-            # Parse incoming JSON data to extract the question
+            # Parse incoming JSON body
             try:
                 received_data = json.loads(post_data)
             except json.JSONDecodeError:
                 self.send_error(400, "Invalid JSON format")
                 return
 
-            question = received_data.get('question', '')
-
-            # Handle missing 'question' in the payload
-            if not question:
-                self.send_error(400, "Bad Request: 'question' parameter is missing")
+            # Validate the structure of the received request
+            messages = received_data.get("messages", None)
+            if not messages or not isinstance(messages, list):
+                self.send_error(400, "Invalid request: 'messages' field is required and must be an array")
                 return
 
-            # Call the OpenAI API with the user's question
-            try:
-                completion = client.chat.completions.create(model="gpt-4o-mini",  # Use GPT-4 or any other available model
-                messages=[{"role": "user", "content": question}])  # Prepare user's message)
+            # Check that all messages have the required structure
+            for message in messages:
+                if not isinstance(message, dict) or 'role' not in message or 'content' not in message:
+                    self.send_error(400, "Invalid message format: Each message must have 'role' and 'content'")
+                    return
 
-                # Extract ChatGPT response
-                chatgpt_response = completion.choices[0].message.content
+            # Call the OpenAI API with the conversation so far
+            try:
+                completion = client.chat.completions.create(
+                    model="gpt-4o-mini",  # Use GPT-4 or any appropriate model
+                    messages=messages  # Pass the conversation history
+                )
+
+                # Extract the assistant's response
+                assistant_content = completion.choices[0].message.content
+
+                # Append the assistant's response to the messages
+                messages.append({
+                    "role": "assistant",
+                    "content": assistant_content
+                })
+
+                # Send a successful response
+                response = {
+                    "messages": messages
+                }
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(response).encode('utf-8'))
+
 
             # Handle OpenAI API-specific errors
             except AuthenticationError:
@@ -55,16 +80,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             except OpenAIError as e:
                 self.send_error(500, f"OpenAI API Error: {str(e)}")
                 return
-
-            # Send a successful response
-            response = {
-                "message": "Answer received!",
-                "chatgpt_response": chatgpt_response
-            }
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode('utf-8'))
 
         # Catch invalid JSON format errors or other unexpected errors
         except json.JSONDecodeError:
