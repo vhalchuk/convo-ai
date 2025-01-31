@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Message } from "./types.ts";
 import { chat } from "./api.ts";
+import Messages from "./Messages.tsx";
 
 function App() {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -21,18 +22,16 @@ function App() {
 
     return (
         <div className="flex h-full w-full overflow-hidden">
-            <aside className="h-full w-[260px] bg-gray-900"></aside>
-            <main className="flex h-full grow flex-col bg-gray-800">
+            <aside className="h-full w-[260px] shrink-0 bg-gray-800"></aside>
+            <main className="flex h-full grow flex-col">
                 <div className="flex-1 overflow-hidden">
-                    {messages.map(({ role, content }, index) => {
-                        return (
-                            <div key={index}>
-                                {role}: {content}
-                            </div>
-                        );
-                    })}
+                    <div className="h-full overflow-y-auto">
+                        <div className="mx-auto max-w-2xl space-y-12 p-4">
+                            <Messages messages={messages} />
+                        </div>
+                    </div>
                 </div>
-                <div className="p-4">
+                <div className="mx-auto w-full max-w-2xl px-4 pb-4">
                     <MessageForm onSubmit={handleSubmit} />
                 </div>
             </main>

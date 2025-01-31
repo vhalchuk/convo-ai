@@ -16,7 +16,7 @@ export default function MessageForm({ onSubmit }: Props) {
                 event.currentTarget.reset();
             }}
         >
-            <div className="bg-gray-700">
+            <div className="rounded-xl bg-gray-700">
                 <textarea
                     name="message"
                     placeholder="Message AI"
@@ -37,12 +37,6 @@ export default function MessageForm({ onSubmit }: Props) {
                     }}
                 />
             </div>
-            <button
-                type="submit"
-                className="mt-2 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            >
-                Submit
-            </button>
         </form>
     );
 }

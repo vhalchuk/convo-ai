@@ -2,7 +2,7 @@
 
 html, body, #root {
     height: 100%;
-    background-color: var(--color-gray-800);
+    background-color: var(--color-gray-900);
 }
 
 @layer base {
