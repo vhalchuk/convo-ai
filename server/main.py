@@ -1,8 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import os
-from openai import OpenAI
-from openai import OpenAIError, AuthenticationError, RateLimitError  # Import OpenAI-specific errors
+from openai import OpenAI, OpenAIError, AuthenticationError, RateLimitError
 
 openai_api_key = os.getenv("OPENAI_API_KEY")  # Retrieve the API key from the environment variable
 client = OpenAI(api_key=openai_api_key)
