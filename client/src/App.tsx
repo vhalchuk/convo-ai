@@ -1,9 +1,9 @@
-import MessageForm from "./MessageForm.tsx";
+import MessageForm from "@/MessageForm.tsx";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Message } from "./types.ts";
-import { chat } from "./api.ts";
-import Messages from "./Messages.tsx";
+import { Message } from "@/types.ts";
+import { chat } from "@/api.ts";
+import Messages from "@/Messages.tsx";
 
 function App() {
     const [messages, setMessages] = useState<Message[]>([]);

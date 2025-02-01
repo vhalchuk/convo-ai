@@ -1,4 +1,4 @@
-import { Message } from "./types.ts";
+import { Message } from "@/types.ts";
 
 type Props = {
     messages: Message[];

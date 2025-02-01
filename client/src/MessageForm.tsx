@@ -1,4 +1,4 @@
-import invariant from "./utils/invariant.ts";
+import invariant from "@/utils/invariant.ts";
 
 type Props = {
     onSubmit: (content: string) => void;

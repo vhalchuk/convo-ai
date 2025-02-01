@@ -1,4 +1,4 @@
-import { ChatResponse, Message } from "./types.ts";
+import { ChatResponse, Message } from "@/types.ts";
 
 export async function chat(messages: Message[]): Promise<ChatResponse> {
     const response = await fetch("/api", {
