@@ -3,6 +3,7 @@
 @variant dark (&:is(.dark *));
 
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 
 @theme {
     --color-background: hsl(var(--background));

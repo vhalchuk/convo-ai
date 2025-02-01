@@ -1,4 +1,5 @@
 import { Message } from "@/types.ts";
+import Markdown from "react-markdown";
 
 type Props = {
     messages: Message[];
@@ -8,8 +9,8 @@ export default function Messages({ messages }: Props) {
     return messages.map(({ role, content }, index) => {
         if (role === "assistant") {
             return (
-                <div key={index}>
-                    <div>{content}</div>
+                <div key={index} className="prose prose-invert">
+                    <Markdown>{content}</Markdown>
                 </div>
             );
         }
