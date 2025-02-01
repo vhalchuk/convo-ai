@@ -17,7 +17,7 @@ export default function Messages({ messages }: Props) {
         // role === "user"
         return (
             <div key={index} className="flex justify-end">
-                <div className="max-w-[80%] rounded-2xl bg-gray-800 p-4">
+                <div className="bg-muted max-w-[80%] rounded-2xl p-4">
                     {content}
                 </div>
             </div>
