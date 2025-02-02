@@ -1,11 +1,9 @@
-import { ChatResponse, Message } from "@/types.ts";
+import { ChatResponse, RequestBody } from "@/types.ts";
 
-export async function chat(messages: Message[]): Promise<ChatResponse> {
+export async function chat(body: RequestBody): Promise<ChatResponse> {
     const response = await fetch("/api", {
         method: "POST",
-        body: JSON.stringify({
-            messages,
-        }),
+        body: JSON.stringify(body),
     });
 
     const content = await response.json();

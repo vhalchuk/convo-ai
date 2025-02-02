@@ -1,7 +1,19 @@
-import invariant from "@/utils/invariant.ts";
+import invariant from "@/lib/invariant.ts";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { MODELS } from "@/constants.ts";
+import { Model } from "@/types.ts";
+import { Textarea } from "@/components/ui/textarea.tsx";
+
+export type OnSubmit = (data: { content: string; model: Model }) => void;
 
 type Props = {
-    onSubmit: (content: string) => void;
+    onSubmit: OnSubmit;
 };
 
 export default function MessageForm({ onSubmit }: Props) {
@@ -10,17 +22,21 @@ export default function MessageForm({ onSubmit }: Props) {
             onSubmit={async (event) => {
                 event.preventDefault();
                 const formData = new FormData(event.currentTarget);
-                const message = formData.get("message") as string | undefined;
-                invariant(message, "Message must be defined");
-                onSubmit(message);
+                const content = formData.get("content") as string | undefined;
+                const model = formData.get("model") as Model | undefined;
+
+                invariant(content, "Content must be defined");
+                invariant(model, "Model must be defined");
+
+                onSubmit({ content, model });
                 event.currentTarget.reset();
             }}
         >
-            <div className="rounded-xl bg-gray-700">
-                <textarea
-                    name="message"
+            <div className="bg-input space-y-1 rounded-xl p-1">
+                <Textarea
+                    name="content"
                     placeholder="Message AI"
-                    className="block h-10 min-h-16 w-full resize-none border-0 bg-transparent p-2"
+                    className="min-h-16 resize-none p-2 shadow-none"
                     onInput={(event) => {
                         event.currentTarget.style.height = "auto"; // Reset height to calculate new height
                         const nextHeight = Math.min(
@@ -36,6 +52,18 @@ export default function MessageForm({ onSubmit }: Props) {
                         }
                     }}
                 />
+                <Select name="model" defaultValue={MODELS.GPT4oMini}>
+                    <SelectTrigger className="w-[140px] shadow-none">
+                        <SelectValue placeholder="Select a model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {Object.values(MODELS).map((model) => (
+                            <SelectItem key={model} value={model}>
+                                {model}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
         </form>
     );
