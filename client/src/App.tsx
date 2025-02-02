@@ -1,12 +1,15 @@
 import MessageForm, { OnSubmit } from "@/MessageForm.tsx";
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Message, RequestBody } from "@/types.ts";
 import { chat } from "@/api.ts";
 import Messages from "@/Messages.tsx";
+import useKVStorage from "@/lib/kv-storage/useKVStorage.ts";
 
 function App() {
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useKVStorage<Message[]>(
+        "test-conversation",
+        []
+    );
     const chatMutation = useMutation({
         mutationFn: (body: RequestBody) => chat(body),
         onSuccess: (data) => {
