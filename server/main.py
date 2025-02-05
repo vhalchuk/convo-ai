@@ -17,7 +17,6 @@ if not openai_api_key or not openai_api_key.strip():  # Ensure the key isn't mis
 # Initialize the OpenAI client
 client = OpenAI(api_key=openai_api_key)
 
-
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
@@ -32,54 +31,60 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(400, "Invalid JSON format")
                 return
 
-            # Validate the structure of the received request
+            # Extract the messages and model from the request
             messages = received_data.get("messages", None)
+            model = received_data.get("model", None)
+
+            # Validate messages
             if not messages or not isinstance(messages, list):
                 self.send_error(400, "Invalid request: 'messages' field is required and must be an array")
                 return
 
-            # Check that all messages have the required structure
-            for message in messages:
-                if not isinstance(message, dict) or 'role' not in message or 'content' not in message:
-                    self.send_error(400, "Invalid message format: Each message must have 'role' and 'content'")
-                    return
-
-            # Call the OpenAI API with the conversation so far
-            try:
-                completion = client.chat.completions.create(
-                    model="gpt-4o-mini",  # Use GPT-4 or any appropriate model
-                    messages=messages  # Pass the conversation history
-                )
-
-                # Extract the assistant's response
-                assistant_content = completion.choices[0].message.content
-
-                # Append the assistant's response to the messages
-                messages.append({
-                    "role": "assistant",
-                    "content": assistant_content
-                })
-
-                # Send a successful response
-                response = {
-                    "messages": messages
-                }
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(response).encode('utf-8'))
-
-
-            # Handle OpenAI API-specific errors
-            except AuthenticationError:
-                self.send_error(401, "Authentication Error: Invalid OpenAI API Key")
+            # Validate model
+            valid_models = ["gpt-4o", "gpt-4o-mini", "o1", "o3-mini"]
+            if model not in valid_models:
+                self.send_error(400, f"Invalid request: 'model' field must be one of: {', '.join(valid_models)}")
                 return
-            except RateLimitError:
-                self.send_error(429, "Rate Limit Exceeded: Too many requests to OpenAI API")
-                return
-            except OpenAIError as e:
-                self.send_error(500, f"OpenAI API Error: {str(e)}")
-                return
+
+            # Debug: Print the extracted model and messages
+            print("Model selected:", model)
+            print("Messages after extraction:", messages)
+
+            # Route the request to the selected model
+            completion = client.chat.completions.create(
+                model=model,  # Use the selected model
+                messages=messages  # Pass the conversation history
+            )
+
+            # Extract the assistant's response
+            assistant_content = completion.choices[0].message.content
+
+            # Append the assistant's response to the messages
+            messages.append({
+                "role": "assistant",
+                "content": assistant_content
+            })
+
+            # Send a successful response
+            response = {
+                "messages": messages
+            }
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode('utf-8'))
+
+
+        # Handle OpenAI API-specific errors
+        except AuthenticationError:
+            self.send_error(401, "Authentication Error: Invalid OpenAI API Key")
+            return
+        except RateLimitError:
+            self.send_error(429, "Rate Limit Exceeded: Too many requests to OpenAI API")
+            return
+        except OpenAIError as e:
+            self.send_error(500, f"OpenAI API Error: {str(e)}")
+            return
 
         # Catch invalid JSON format errors or other unexpected errors
         except json.JSONDecodeError:
