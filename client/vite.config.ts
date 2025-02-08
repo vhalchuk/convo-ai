@@ -19,14 +19,7 @@ export default defineConfig({
         },
     },
     server: {
-        host: "localhost",
+        host: "0.0.0.0",
         port: 5173,
-        proxy: {
-            "/api": {
-                target: "http://localhost:8000", // TODO: use env variable
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api/, ""), // Remove `/api` prefix
-            },
-        },
     },
 });

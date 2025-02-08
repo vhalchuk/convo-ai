@@ -14,17 +14,32 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key or not openai_api_key.strip():  # Ensure the key isn't missing or blank
     raise ValueError("OPENAI_API_KEY environment variable is missing or invalid")
 
+allowed_origin = os.getenv("ALLOWED_ORIGIN")
+
+if not allowed_origin or not allowed_origin.strip():  # Ensure the key isn't missing or blank
+    raise ValueError("ALLOWED_ORIGIN environment variable is missing or invalid")
+
 # Initialize the OpenAI client
 client = OpenAI(api_key=openai_api_key)
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    # Override end_headers to add CORS to every response
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', allowed_origin)
+        super().end_headers()
+
+    # Handle preflight OPTIONS requests
+    def do_OPTIONS(self):
+        self.send_response(200, "OK")
+        self.send_header('Access-Control-Allow-Origin', allowed_origin)
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
     def do_POST(self):
         try:
-            # Read and parse request body
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
-
-            # Parse incoming JSON body
             try:
                 received_data = json.loads(post_data)
             except json.JSONDecodeError:
@@ -45,10 +60,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             if model not in valid_models:
                 self.send_error(400, f"Invalid request: 'model' field must be one of: {', '.join(valid_models)}")
                 return
-
-            # Debug: Print the extracted model and messages
-            print("Model selected:", model)
-            print("Messages after extraction:", messages)
 
             # Route the request to the selected model
             completion = client.chat.completions.create(
