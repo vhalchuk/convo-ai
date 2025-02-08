@@ -15,3 +15,6 @@ export type RequestBody = {
 export type ChatResponse = {
     messages: Message[];
 };
+
+export type Conversation = { id: string; title: string; messages: Message[] };
+export type ConversationListItem = Pick<Conversation, "id" | "title">;
