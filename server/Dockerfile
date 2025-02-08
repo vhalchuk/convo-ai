@@ -4,11 +4,11 @@ FROM python:3.10-slim
 # Set the working directory inside the container
 WORKDIR /app
 
+RUN pip install --no-cache-dir watchdog
+
 # Install Python dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-
-RUN pip install --no-cache-dir watchdog
 
 # Copy the rest of the application code
 COPY . .
