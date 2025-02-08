@@ -4,6 +4,7 @@ import { Message, RequestBody } from "@/types.ts";
 import { chat } from "@/api.ts";
 import Messages from "@/Messages.tsx";
 import useKVStorage from "@/lib/kv-storage/useKVStorage.ts";
+import { useEffect } from "react";
 
 function App() {
     const [messages, setMessages] = useKVStorage<Message[]>(
@@ -25,6 +26,12 @@ function App() {
             model,
         });
     };
+
+    useEffect(() => {
+        const ws = new WebSocket("ws://localhost:8000");
+        ws.onmessage = (e) => console.log("Received:", e.data);
+        ws.onopen = () => ws.send("ping");
+    }, []);
 
     return (
         <div className="flex h-full w-full overflow-hidden">
