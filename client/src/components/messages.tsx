@@ -1,11 +1,11 @@
-import { Message } from "@/types.ts";
+import { Message } from "@/types";
 import Markdown from "react-markdown";
 
 type Props = {
     messages: Message[];
 };
 
-export default function Messages({ messages }: Props) {
+export function Messages({ messages }: Props) {
     return messages.map(({ role, content }, index) => {
         if (role === "assistant") {
             return (

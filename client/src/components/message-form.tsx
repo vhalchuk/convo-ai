@@ -1,4 +1,4 @@
-import invariant from "@/lib/invariant.ts";
+import invariant from "@/lib/invariant";
 import {
     Select,
     SelectContent,
@@ -6,9 +6,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { MODELS } from "@/constants.ts";
-import { Model } from "@/types.ts";
-import { Textarea } from "@/components/ui/textarea.tsx";
+import { MODELS } from "@/constants";
+import { Model } from "@/types";
+import { Textarea } from "@/components/ui/textarea";
 
 export type OnSubmit = (data: { content: string; model: Model }) => void;
 
@@ -16,7 +16,7 @@ type Props = {
     onSubmit: OnSubmit;
 };
 
-export default function MessageForm({ onSubmit }: Props) {
+export function MessageForm({ onSubmit }: Props) {
     return (
         <form
             onSubmit={async (event) => {

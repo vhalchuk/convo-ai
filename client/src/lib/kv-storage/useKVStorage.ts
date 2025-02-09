@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import KVStorage from "./KVStorage"; // adjust the import path as needed
+import KVStorage from "./KVStorage";
+import { KVStorageKey, KVStorageValue } from "@/types"; // adjust the import path as needed
 
-function useKVStorage<T>(key: string, initialValue: T) {
-    const [state, setState] = useState<T>(initialValue);
+function useKVStorage<T extends KVStorageKey>(
+    key: T,
+    initialValue: KVStorageValue<T>
+) {
+    const [state, setState] = useState<KVStorageValue<T>>(initialValue);
 
     // Load initial value from KVStorage on mount
     useEffect(() => {
@@ -23,13 +27,27 @@ function useKVStorage<T>(key: string, initialValue: T) {
         };
     }, [key]);
 
+    useEffect(() => {
+        return KVStorage.subscribe(key, (value) => {
+            setState(value);
+        });
+    }, [key]);
+
     // Setter that updates both state and KVStorage
     const setKVState = useCallback(
-        (value: T | ((prev: T) => T)) => {
+        (
+            value:
+                | KVStorageValue<T>
+                | ((prev: KVStorageValue<T>) => KVStorageValue<T>)
+        ) => {
             setState((prev) => {
                 const newValue =
                     typeof value === "function"
-                        ? (value as (prev: T) => T)(prev)
+                        ? (
+                              value as (
+                                  prev: KVStorageValue<T>
+                              ) => KVStorageValue<T>
+                          )(prev)
                         : value;
                 KVStorage.setItem(key, newValue).catch((error) =>
                     console.error(`Error setting key "${key}":`, error)
@@ -42,7 +60,9 @@ function useKVStorage<T>(key: string, initialValue: T) {
 
     // Optional updater that uses KVStorage's updateItem
     const updateKVState = useCallback(
-        (updater: (prev: T | undefined) => T) => {
+        (
+            updater: (prev: KVStorageValue<T> | undefined) => KVStorageValue<T>
+        ) => {
             setState((prev) => {
                 const newValue = updater(prev);
                 KVStorage.setItem(key, newValue).catch((error) =>
