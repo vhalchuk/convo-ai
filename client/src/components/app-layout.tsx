@@ -1,8 +1,8 @@
-import { AppSidebar } from "@/components/app-sidebar.tsx";
-import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar.tsx";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 
-export default function Layout() {
+export function AppLayout() {
     return (
         <>
             <AppSidebar />

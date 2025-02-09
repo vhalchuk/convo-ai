@@ -11,20 +11,22 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar";
-import useKVStorage from "@/lib/kv-storage/useKVStorage.ts";
-import { ConversationListItem } from "@/types.ts";
+import useKVStorage from "@/lib/kv-storage/useKVStorage";
+import { NewConvoButton } from "@/components/new-convo-button";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-    const [conversationIds] = useKVStorage<ConversationListItem[]>(
-        "conversation-list",
-        []
-    );
+    const [conversationIds] = useKVStorage("conversation-list", []);
     const { conversationId } = useParams<{ conversationId?: string }>();
 
     return (
         <Sidebar {...props}>
             <SidebarContent>
-                <SidebarHeader>Convo AI</SidebarHeader>
+                <SidebarHeader>
+                    <div className="flex justify-between p-2">
+                        <h1 className="font-bold">Convo AI</h1>
+                        <NewConvoButton />
+                    </div>
+                </SidebarHeader>
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
