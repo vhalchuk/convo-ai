@@ -40,7 +40,7 @@ Convo AI is an open-source project that lets you run a custom ChatGPT locally us
 - Run the following command from the project root:
 
     ```bash
-    cp client/.env.example client/.env 
+    docker-compose up
     ```
   
     This builds and starts both the server and client containers. Logs for each service will be clearly labeled.
