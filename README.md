@@ -20,7 +20,7 @@ Convo AI is an open-source project that lets you run a custom ChatGPT locally us
 1. **Clone the Repository**
 
     ```bash
-    git clone https://github.com/yourusername/convo-ai.git
+    git clone https://github.com/vhalchuk/convo-ai.git
     cd convo-ai
     ```
 
