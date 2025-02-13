@@ -29,17 +29,11 @@ Convo AI is an open-source project that lets you run a custom ChatGPT locally us
 
 - For the server:
 
-    ```bash
-    cp server/.env.example server/.env
-    ```
+    Open your preferred text editor or file manager and create a copy of `server/.env.example`. Rename the copied file to `.env` (keeping it in the same folder). Then, update the values in the new `.env` file with the keys provided.
   
 - For the client:
 
-    ```bash
-    cp client/.env.example client/.env 
-    ```
-  
-    Update both .env files with the necessary keys as provided.
+    Similarly, duplicate the `client/.env.example` file as `.env` in the client folder and fill in the necessary keys.
 
 3. **Start the Project**
 
