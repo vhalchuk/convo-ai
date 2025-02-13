@@ -1,6 +1,6 @@
 # Convo AI
 
-Convo AI is an open-source project that lets you run a custom ChatGPT locally using the OpenAI API — only paying for what you use. It consists of two main parts:
+Convo AI is an open-source project that lets you run a custom ChatGPT locally using own OpenAI API key. It consists of two main parts:
 
 - **Python Server:** Handles API interactions and backend logic.
 - **React Client:** Provides a chat interface for interacting with the server.
