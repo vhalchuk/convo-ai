@@ -11,11 +11,11 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar";
-import useKVStorage from "@/lib/kv-storage/useKVStorage";
+import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
 import { NewConvoButton } from "@/components/new-convo-button";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
-    const [conversationIds] = useKVStorage("conversation-list", []);
+    const conversationIds = useKVStorageValue("conversation-list", []);
     const { conversationId } = useParams<{ conversationId?: string }>();
 
     return (
