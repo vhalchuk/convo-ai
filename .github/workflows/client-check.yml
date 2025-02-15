@@ -1,13 +1,14 @@
-name: Lint
+name: Client check
 
 on:
   pull_request:
-    types:
-      - opened
     branches:
       - 'main'
+    paths:
+      - 'client/src/**'
+
 jobs:
-  lint-check:
+  client-check:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,7 +21,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22
-          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
         run: pnpm install
