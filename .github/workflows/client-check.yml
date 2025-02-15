@@ -1,0 +1,35 @@
+name: Client check
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'client/src/**'
+
+jobs:
+  client-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 22 and pnpm cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run ESLint
+        run: pnpm run lint
+
+      - name: Check Prettier formatting
+        run: pnpm run prettier
