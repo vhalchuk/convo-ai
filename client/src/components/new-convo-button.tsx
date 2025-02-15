@@ -1,6 +1,6 @@
 import { SquarePen } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export function NewConvoButton() {
     const navigate = useNavigate();
