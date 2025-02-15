@@ -1,5 +1,5 @@
-import { Message } from "@/types";
 import Markdown from "react-markdown";
+import { Message } from "@/types";
 
 type Props = {
     messages: Message[];

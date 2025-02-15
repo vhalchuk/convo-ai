@@ -1,5 +1,5 @@
-import { ChatResponse, RequestBody } from "@/types";
 import { env } from "@/env";
+import { ChatResponse, RequestBody } from "@/types";
 
 export async function chat(body: RequestBody): Promise<ChatResponse> {
     const response = await fetch(env.VITE_API_DOMAIN, {

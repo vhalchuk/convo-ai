@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { KVStorageKey, KVStorageValue } from "@/types";
 import KVStorage from "./KVStorage";
-import { KVStorageKey, KVStorageValue } from "@/types"; // adjust the import path as needed
+
+// adjust the import path as needed
 
 function useKVStorageValue<T extends KVStorageKey>(
     key: T,

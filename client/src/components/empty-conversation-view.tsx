@@ -1,9 +1,9 @@
-import { MessageForm, type OnSubmit } from "@/components/message-form";
-import { Conversation, RequestBody } from "@/types";
-import KVStorage from "@/lib/kv-storage/KVStorage";
-import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { chat } from "@/api";
+import { MessageForm, type OnSubmit } from "@/components/message-form";
+import KVStorage from "@/lib/kv-storage/KVStorage";
+import { Conversation, RequestBody } from "@/types";
 
 export function EmptyConversationView() {
     const navigate = useNavigate();

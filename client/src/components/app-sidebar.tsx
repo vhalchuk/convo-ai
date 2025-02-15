@@ -1,5 +1,6 @@
 import { type ComponentProps } from "react";
 import { Link, useParams } from "react-router-dom";
+import { NewConvoButton } from "@/components/new-convo-button";
 import {
     Sidebar,
     SidebarContent,
@@ -12,7 +13,6 @@ import {
     SidebarRail,
 } from "@/components/ui/sidebar";
 import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
-import { NewConvoButton } from "@/components/new-convo-button";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     const conversationIds = useKVStorageValue("conversation-list", []);
