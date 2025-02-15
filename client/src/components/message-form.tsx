@@ -1,4 +1,3 @@
-import invariant from "@/lib/invariant";
 import {
     Select,
     SelectContent,
@@ -6,9 +5,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { MODELS } from "@/constants";
-import { Model } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
+import { MODELS } from "@/constants";
+import invariant from "@/lib/invariant";
+import { Model } from "@/types";
 
 export type OnSubmit = (data: { content: string; model: Model }) => void;
 
