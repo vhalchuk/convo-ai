@@ -50,7 +50,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                         <SidebarMenu>
                             {conversationIds.map((item) => (
                                 <SidebarMenuItem
-                                    key={item.title}
+                                    key={item.id}
                                     className="group/menu-item"
                                 >
                                     <SidebarMenuButton
@@ -63,6 +63,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                                         variant="link"
                                         size="icon"
                                         className="absolute bottom-0 top-0 right-0 size-8 invisible group-hover/menu-item:visible"
+                                        aria-label="Delete conversation"
                                         onClick={() => {
                                             handleDelete(item.id);
                                         }}
