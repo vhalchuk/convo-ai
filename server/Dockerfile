@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the server with watchmedo for live reloading
-CMD ["uvicorn", "main-v2:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
