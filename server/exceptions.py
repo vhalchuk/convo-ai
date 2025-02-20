@@ -1,18 +1,16 @@
-class ChatServiceError(Exception):
-    """Base exception for chat service errors"""
-    pass
-
-
-class AuthenticationError(ChatServiceError):
+class AuthenticationError(Exception):
     """Raised when authentication fails"""
-    pass
+    def __init__(self, message="Authentication failed"):
+        super().__init__(message)
 
 
-class RateLimitError(ChatServiceError):
+class RateLimitError(Exception):
     """Raised when rate limit is exceeded"""
-    pass
+    def __init__(self, message="Rate limit exceeded"):
+        super().__init__(message)
 
 
-class ServiceError(ChatServiceError):
+class ServiceError(Exception):
     """Raised when service fails"""
-    pass
+    def __init__(self, message="Service error occurred"):
+        super().__init__(message)
