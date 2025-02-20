@@ -16,9 +16,9 @@ async def chat_service(model: str, messages: list[Message]) -> list[Message]:
         assistant_content = completion.choices[0].message.content
         response_messages = messages + [Message(role=Role.ASSISTANT, content=assistant_content)]
         return response_messages
-    except openai.AuthenticationError:
-        raise AuthenticationError("Invalid OpenAI API Key")
-    except openai.RateLimitError:
-        raise RateLimitError("Too many requests to OpenAI API")
+    except openai.AuthenticationError as e:
+        raise AuthenticationError("Invalid OpenAI API Key") from e
+    except openai.RateLimitError as e:
+        raise RateLimitError("Too many requests to OpenAI API") from e
     except openai.OpenAIError as e:
-        raise ServiceError(str(e))
+        raise ServiceError(str(e)) from e
