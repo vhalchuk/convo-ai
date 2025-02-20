@@ -1,33 +1,38 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Any, Literal
+from typing import List
+from enum import Enum
 from config import settings
+
+class Role(str, Enum):
+    SYSTEM = "system"
+    DEVELOPER = "developer",
+    USER = "user",
+    ASSISTANT = "assistant"
+
+class Message(BaseModel):
+    role: Role
+    content: str
 
 
 class ChatRequest(BaseModel):
-    """
-    Model representing a request to the chat system.
-    """
-    messages: List[Dict[str, Any]] = Field(
+    messages: List[Message] = Field(
         ...,
-        description="A list of message objects, where each message object contains the characteristics of user or system messages."
+        description="A non-empty list of messages making up the chat request."
     )
-    model: Literal["gpt-4o", "gpt-4o-mini", "o1", "o3-mini"] = Field(
+    model: Role = Field(
         ...,
-        description=f"The name of the model being requested. Must be one of: {', '.join(settings.valid_models)}"
+        description=f"The name of the AI model being requested. Must be one of: {', '.join(settings.valid_models)}"
     )
 
     @field_validator("messages")
-    @classmethod
-    def check_messages(cls, v):
+    def check_messages(self, v):
         if not v:
             raise ValueError("'messages' field is required and must be a non-empty array")
         return v
 
-    # Adding metadata for the model
-    class Config:
-        title = "Chat Request Model"
-        description = (
-            "This is a Pydantic model for validating incoming requests to the chat system. "
-            "It ensures that the 'messages' field contains input data for the system and "
-            "validates the 'model' against a predefined list of acceptable models."
-        )
+
+class ChatResponse(BaseModel):
+    messages: List[Message] = Field(
+        ...,
+        description="A list of messages in the response."
+    )
