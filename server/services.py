@@ -7,7 +7,7 @@ from exceptions import AuthenticationError, RateLimitError, ServiceError
 client = OpenAI(api_key=settings.openai_api_key)
 
 
-async def chat_service(model: str, messages: list[Message]) -> list:
+async def chat_service(model: str, messages: list[Message]) -> list[Message]:
     try:
         completion = client.chat.completions.create(
             model=model,
