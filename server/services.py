@@ -14,7 +14,7 @@ async def chat_service(model: str, messages: list[Message]) -> list:
             messages=[msg.model_dump() for msg in messages]
         )
         assistant_content = completion.choices[0].message.content
-        response_messages = messages + [{"role": Role.ASSISTANT, "content": assistant_content}]
+        response_messages = messages + [Message(role=Role.ASSISTANT, content=assistant_content)]
         return response_messages
     except openai.AuthenticationError:
         raise AuthenticationError("Invalid OpenAI API Key")

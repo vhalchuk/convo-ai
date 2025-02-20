@@ -24,6 +24,12 @@ class ChatRequest(BaseModel):
         description=f"The name of the AI model being requested. Must be one of: {', '.join(settings.valid_models)}"
     )
 
+    @field_validator("model")
+    def validate_model(self, v: str) -> str:
+        if v not in settings.valid_models:
+            raise ValueError(f"Invalid model. Must be one of: {', '.join(settings.valid_models)}")
+        return v
+
     @field_validator("messages")
     def check_messages(self, v):
         if not v:
