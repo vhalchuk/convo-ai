@@ -15,6 +15,9 @@ on:
 jobs:
   black-check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
 
     steps:
     - name: Checkout repository
