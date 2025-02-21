@@ -5,9 +5,6 @@ from models import OpenAIModel, Role
 BASE_URL = "http://localhost:8000"
 CHAT_ENDPOINT = f"{BASE_URL}/"
 
-valid_model = "gpt-4o-mini"
-invalid_model = "invalid_model_name"
-
 valid_messages = [
     {"role": Role.USER, "content": "Hello!"},
 ]
@@ -47,7 +44,7 @@ def test_chat_endpoint_missing_messages():
     Test the error scenario when `messages` field is missing or empty.
     """
     payload = {
-        "model": valid_model,
+        "model": OpenAIModel.GPT_4O_MINI,
         "messages": []
     }
     response = requests.post(CHAT_ENDPOINT, json=payload)
