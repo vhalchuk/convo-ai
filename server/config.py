@@ -7,7 +7,6 @@ load_dotenv()
 class Settings:
     openai_api_key: str = os.getenv("OPENAI_API_KEY")
     allowed_origin: str = os.getenv("ALLOWED_ORIGIN")
-    valid_models = ["gpt-4o", "gpt-4o-mini", "o1", "o3-mini"]
 
     if not openai_api_key or not openai_api_key.strip():
         raise ValueError("OPENAI_API_KEY environment variable is missing or invalid")
