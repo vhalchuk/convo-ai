@@ -19,7 +19,4 @@ async def chat_endpoint(request: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=502, detail=str(e))
     except Exception as e:
         print(f"Unexpected error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Internal Server Error"
-        )
+        raise HTTPException(status_code=500, detail="Internal Server Error")
