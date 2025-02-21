@@ -34,4 +34,4 @@ jobs:
         pip install --no-cache-dir -r requirements-dev.txt
 
     - name: Run Black Formatter Check
-      run: black --check ./server
+      run: black --check .
