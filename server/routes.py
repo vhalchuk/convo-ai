@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
+from pydantic import ValidationError
+
 from models import ChatRequest, ChatResponse
-from services import chat_service
+from services import chat_service, chat_service_v2
 from exceptions import AuthenticationError, RateLimitError, ServiceError
 
 router = APIRouter()
@@ -9,8 +11,8 @@ router = APIRouter()
 @router.post("/", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest) -> ChatResponse:
     try:
-        response_messages = await chat_service(request.model, request.messages)
-        return ChatResponse(messages=response_messages)
+        response_message = await chat_service(request.model, request.messages)
+        return ChatResponse(message=response_message)
     except AuthenticationError as e:
         raise HTTPException(status_code=401, detail=str(e))
     except RateLimitError as e:
@@ -20,3 +22,28 @@ async def chat_endpoint(request: ChatRequest) -> ChatResponse:
     except Exception as e:
         print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            request_json = await websocket.receive_json()
+            try:
+                chat_request = ChatRequest(**request_json)
+                response_message = await chat_service_v2(
+                    chat_request.model, chat_request.messages
+                )
+                await websocket.send_json(
+                    ChatResponse(message=response_message).model_dump()
+                )
+                await websocket.send_json({"status": "[DONE]"})
+            except ValidationError as e:
+                print(f"Validation Error: {e}")
+                await websocket.send_json({"error": str(e)})
+            except Exception as e:
+                print(f"Error during chat processing: {e}")
+                await websocket.send_json({"error": str(e)})
+    except WebSocketDisconnect:
+        pass

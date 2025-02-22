@@ -1,6 +1,8 @@
-import { MODELS } from "@/constants";
+import { MODELS, ROLES } from "@/constants";
 
 export type Model = (typeof MODELS)[keyof typeof MODELS];
+
+export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export type Message = {
     role: "user" | "assistant";
@@ -19,7 +21,8 @@ export type ChatResponse = {
 export type Conversation = { id: string; title: string; messages: Message[] };
 export type ConversationListItem = Pick<Conversation, "id" | "title">;
 
-export type KVStorageKey = "conversation-list" | `conversation-${string}`;
+export type ConversationStorageKey = `conversation-${string}`;
+export type KVStorageKey = "conversation-list" | ConversationStorageKey;
 export type KVStorageValue<T extends KVStorageKey> =
     T extends "conversation-list"
         ? ConversationListItem[]

@@ -1,16 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { chat } from "@/api";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
+import { useStartChatSession } from "@/hooks/useStartChatSession.ts";
 import KVStorage from "@/lib/kv-storage/KVStorage";
-import { Conversation, RequestBody } from "@/types";
+import { Conversation } from "@/types";
 
 export function EmptyConversationView() {
     const navigate = useNavigate();
 
-    const chatMutation = useMutation({
-        mutationFn: (body: RequestBody) => chat(body),
-    });
+    const { connect } = useStartChatSession();
 
     const handleSubmit: OnSubmit = async ({ content, model }) => {
         const newId = crypto.randomUUID();
@@ -42,15 +39,11 @@ export function EmptyConversationView() {
 
         navigate(`/${newId}`, { replace: true });
 
-        const { messages } = await chatMutation.mutateAsync({
+        connect({
+            conversationStorageKey: newConversationId,
             messages: newConv.messages,
             model,
         });
-
-        void KVStorage.updateItem(newConversationId, (oldValue) => ({
-            ...(oldValue as Conversation),
-            messages,
-        }));
     };
 
     return (

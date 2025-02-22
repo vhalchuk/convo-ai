@@ -1,12 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { chat } from "@/api";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
 import { Messages } from "@/components/messages";
+import { useStartChatSession } from "@/hooks/useStartChatSession.ts";
 import invariant from "@/lib/invariant";
 import KVStorage from "@/lib/kv-storage/KVStorage";
 import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
-import { Conversation, Message, RequestBody } from "@/types";
+import { Conversation, Message } from "@/types";
 
 export function ConversationView() {
     const { conversationId } = useParams<{ conversationId?: string }>();
@@ -22,19 +21,7 @@ export function ConversationView() {
             : { id: "", title: "", messages: [] }
     );
 
-    const chatMutation = useMutation({
-        mutationFn: (body: RequestBody) => chat(body),
-        onSuccess: (data) => {
-            KVStorage.updateItem(conversationStorageKey, (oldValue) => {
-                invariant(oldValue, "Conversation must be defined");
-
-                return {
-                    ...oldValue,
-                    messages: data.messages,
-                };
-            });
-        },
-    });
+    const { connect } = useStartChatSession();
 
     const handleSubmit: OnSubmit = ({ content, model }) => {
         const newMessages: Message[] = [
@@ -46,7 +33,7 @@ export function ConversationView() {
             messages: newMessages,
         };
         KVStorage.setItem(conversationStorageKey, updatedConv);
-        chatMutation.mutate({ messages: newMessages, model });
+        connect({ conversationStorageKey, messages: newMessages, model });
     };
 
     return (
