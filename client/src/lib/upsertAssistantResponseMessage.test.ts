@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ROLES } from "@/constants.ts";
 import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
 import { Message } from "@/types.ts";
 
@@ -6,28 +7,21 @@ describe("upsertAssistantResponseMessage", () => {
     it("inserts a message at the end of the messages array", () => {
         const initialMessages: Message[] = [
             {
-                role: "user",
+                role: ROLES.USER,
                 content: "Hello",
             },
         ];
-        const responseMessage: Message = {
-            role: "assistant",
-            content: "Hello",
-        };
 
-        const result = upsertAssistantResponseMessage(
-            initialMessages,
-            responseMessage
-        );
+        const result = upsertAssistantResponseMessage(initialMessages, "Hello");
 
         expect(result).not.toBe(initialMessages); // must be a new array reference
         expect(result).toEqual([
             {
-                role: "user",
+                role: ROLES.USER,
                 content: "Hello",
             },
             {
-                role: "assistant",
+                role: ROLES.ASSISTANT,
                 content: "Hello",
             },
         ]);
@@ -36,32 +30,24 @@ describe("upsertAssistantResponseMessage", () => {
     it("replaces the last assistant message if it exists", () => {
         const initialMessages: Message[] = [
             {
-                role: "user",
+                role: ROLES.USER,
                 content: "Hello",
             },
             {
-                role: "assistant",
+                role: ROLES.ASSISTANT,
                 content: "Hel",
             },
         ];
-        const responseMessage: Message = {
-            role: "assistant",
-            content: "Hello",
-        };
-
-        const result = upsertAssistantResponseMessage(
-            initialMessages,
-            responseMessage
-        );
+        const result = upsertAssistantResponseMessage(initialMessages, "lo");
 
         expect(result).not.toBe(initialMessages); // must be a new array reference
         expect(result).toEqual([
             {
-                role: "user",
+                role: ROLES.USER,
                 content: "Hello",
             },
             {
-                role: "assistant",
+                role: ROLES.ASSISTANT,
                 content: "Hello",
             },
         ]);

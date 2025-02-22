@@ -1,7 +1,6 @@
 import invariant from "@/lib/invariant.ts";
 import KVStorage from "@/lib/kv-storage/KVStorage.ts";
 import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
-import { isMessageResponse } from "@/predicates.ts";
 import { ResponseSchema } from "@/schemas.ts";
 import { ConversationStorageKey, Message, Model } from "@/types.ts";
 
@@ -28,26 +27,28 @@ export function useStartChatSession() {
         };
 
         ws.onmessage = (event) => {
+            if (event.data === "[DONE]") {
+                console.debug("Done");
+                ws.close();
+                return;
+            }
+
             const response = JSON.parse(event.data);
             console.debug("Message received", response);
 
             const validatedResponse = ResponseSchema.parse(response);
 
-            if (isMessageResponse(validatedResponse)) {
-                KVStorage.updateItem(conversationStorageKey, (oldValue) => {
-                    invariant(oldValue, "Conversation must be defined");
+            KVStorage.updateItem(conversationStorageKey, (oldValue) => {
+                invariant(oldValue, "Conversation must be defined");
 
-                    return {
-                        ...oldValue,
-                        messages: upsertAssistantResponseMessage(
-                            oldValue.messages,
-                            validatedResponse.message
-                        ),
-                    };
-                });
-            } else {
-                ws.close();
-            }
+                return {
+                    ...oldValue,
+                    messages: upsertAssistantResponseMessage(
+                        oldValue.messages,
+                        validatedResponse.v
+                    ),
+                };
+            });
         };
 
         ws.onclose = () => {

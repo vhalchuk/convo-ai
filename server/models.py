@@ -45,3 +45,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     message: Message = Field(..., description="A response message.")
+
+
+class ChatResponseV2(BaseModel):
+    v: str = Field(..., description="A chunk of streamable content.")
