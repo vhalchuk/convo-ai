@@ -1,3 +1,5 @@
+from typing import AsyncGenerator
+
 import openai
 from openai import OpenAI
 from config import settings
@@ -22,13 +24,19 @@ async def chat_service(model: str, messages: list[Message]) -> Message:
         raise ServiceError(str(e)) from e
 
 
-async def chat_service_v2(model: str, messages: list[Message]) -> Message:
+async def chat_service_v2(
+    model: str, messages: list[Message]
+) -> AsyncGenerator[str, None]:
     try:
-        completion = client.chat.completions.create(
-            model=model, messages=[msg.model_dump() for msg in messages]
+        response = client.chat.completions.create(
+            model=model,
+            messages=[msg.model_dump() for msg in messages],
+            stream=True,  # Enables streaming
         )
-        assistant_content = completion.choices[0].message.content
-        return Message(role=Role.ASSISTANT, content=assistant_content)
+        for chunk in response:
+            if hasattr(chunk.choices[0].delta, "content"):
+                yield chunk.choices[0].delta.content
+
     except openai.AuthenticationError as e:
         raise AuthenticationError("Invalid OpenAI API Key") from e
     except openai.RateLimitError as e:

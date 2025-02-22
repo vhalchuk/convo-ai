@@ -45,9 +45,9 @@ export function useStartChatSession() {
                         ),
                     };
                 });
+            } else {
+                ws.close();
             }
-
-            ws.close();
         };
 
         ws.onclose = () => {

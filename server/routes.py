@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
-from models import ChatRequest, ChatResponse
+from models import ChatRequest, ChatResponse, Message, Role
 from services import chat_service, chat_service_v2
 from exceptions import AuthenticationError, RateLimitError, ServiceError
 
@@ -32,12 +32,19 @@ async def websocket_endpoint(websocket: WebSocket):
             request_json = await websocket.receive_json()
             try:
                 chat_request = ChatRequest(**request_json)
-                response_message = await chat_service_v2(
+
+                content = ""
+
+                async for message_chunk in chat_service_v2(
                     chat_request.model, chat_request.messages
-                )
-                await websocket.send_json(
-                    ChatResponse(message=response_message).model_dump()
-                )
+                ):
+                    if message_chunk is not None:
+                        content = content + message_chunk
+                        await websocket.send_json(
+                            ChatResponse(
+                                message=Message(role=Role.ASSISTANT, content=content)
+                            ).model_dump()
+                        )
                 await websocket.send_json({"status": "[DONE]"})
             except ValidationError as e:
                 print(f"Validation Error: {e}")
