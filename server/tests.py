@@ -21,10 +21,7 @@ def test_chat_endpoint_with_all_models(model):
 
     assert response.status_code == 200, f"Failed for model: {model}"
     data = response.json()
-    assert "messages" in data, f"`messages` field missing for model: {model}"
-    assert len(data["messages"]) >= len(
-        valid_messages
-    ), f"Unexpected response for model: {model}"
+    assert "message" in data, f"`messages` field missing for model: {model}"
 
 
 def test_chat_endpoint_invalid_model():

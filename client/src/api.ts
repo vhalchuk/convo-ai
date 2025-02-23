@@ -1,16 +1,39 @@
 import { env } from "@/env";
-import { ChatResponse, RequestBody } from "@/types";
+import { PostEventSource } from "@/lib/PostEventSource.ts";
+import invariant from "@/lib/invariant.ts";
+import KVStorage from "@/lib/kv-storage/KVStorage.ts";
+import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
+import { ConversationStorageKey, RequestBody } from "@/types";
 
-export async function chat(body: RequestBody): Promise<ChatResponse> {
-    const response = await fetch(env.VITE_API_DOMAIN, {
+export async function chat(
+    conversationStorageKey: ConversationStorageKey,
+    body: RequestBody
+) {
+    const eventSource = new PostEventSource(`${env.VITE_API_DOMAIN}/stream`, {
         headers: {
             "Content-Type": "application/json",
         },
-        method: "POST",
         body: JSON.stringify(body),
     });
 
-    const content = await response.json();
+    eventSource.addEventListener("delta", (event) => {
+        KVStorage.updateItem(conversationStorageKey, (prevConversation) => {
+            invariant(
+                prevConversation,
+                "Previous conversation must be defined"
+            );
+            invariant(
+                event instanceof MessageEvent,
+                "Event must be a MessageEvent"
+            );
 
-    return content as ChatResponse;
+            return {
+                ...prevConversation,
+                messages: upsertAssistantResponseMessage(
+                    prevConversation.messages,
+                    event.data
+                ),
+            };
+        });
+    });
 }
