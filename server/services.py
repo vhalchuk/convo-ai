@@ -1,5 +1,3 @@
-from typing import AsyncGenerator
-
 import openai
 from openai import OpenAI
 from config import settings
@@ -24,17 +22,15 @@ async def chat_service(model: str, messages: list[Message]) -> Message:
         raise ServiceError(str(e)) from e
 
 
-async def chat_service_v2(
-    model: str, messages: list[Message]
-) -> AsyncGenerator[str, None]:
+def chat_service_v2(model: str, messages: list[Message]):
     try:
-        response = client.chat.completions.create(
+        stream = client.chat.completions.create(
             model=model,
             messages=[msg.model_dump() for msg in messages],
-            stream=True,  # Enables streaming
+            stream=True,
         )
-        for chunk in response:
-            if hasattr(chunk.choices[0].delta, "content"):
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content
 
     except openai.AuthenticationError as e:

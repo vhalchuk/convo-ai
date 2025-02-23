@@ -1,13 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
-import { useStartChatSession } from "@/hooks/useStartChatSession.ts";
 import KVStorage from "@/lib/kv-storage/KVStorage";
 import { Conversation } from "@/types";
 
 export function EmptyConversationView() {
     const navigate = useNavigate();
-
-    const { connect } = useStartChatSession();
 
     const handleSubmit: OnSubmit = async ({ content, model }) => {
         const newId = crypto.randomUUID();
@@ -39,8 +37,7 @@ export function EmptyConversationView() {
 
         navigate(`/${newId}`, { replace: true });
 
-        connect({
-            conversationStorageKey: newConversationId,
+        void chat(newConversationId, {
             messages: newConv.messages,
             model,
         });

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
+from starlette.responses import StreamingResponse
 
+from exceptions import AuthenticationError, RateLimitError, ServiceError
 from models import ChatRequest, ChatResponse, ChatResponseV2
 from services import chat_service, chat_service_v2
-from exceptions import AuthenticationError, RateLimitError, ServiceError
 
 router = APIRouter()
 
@@ -24,26 +25,35 @@ async def chat_endpoint(request: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
+@router.post("/stream")
+def sse_endpoint(request: ChatRequest):
     try:
-        while True:
-            request_json = await websocket.receive_json()
-            try:
-                chat_request = ChatRequest(**request_json)
 
-                async for chunk in chat_service_v2(
-                    chat_request.model, chat_request.messages
+        def event_generator():
+            try:
+                for chunk in chat_service_v2(
+                    request.model,
+                    request.messages,
                 ):
                     if chunk is not None:
-                        await websocket.send_json(ChatResponseV2(v=chunk).model_dump())
-                await websocket.send_text("[DONE]")
-            except ValidationError as e:
-                print(f"Validation Error: {e}")
-                await websocket.send_json({"error": str(e)})
+                        lines = chunk.split("\n")
+                        s = (
+                            "event: delta\n"
+                            + "".join(f"data: {line}\n" for line in lines)
+                            + "\n"
+                        )
+                        yield s
             except Exception as e:
                 print(f"Error during chat processing: {e}")
-                await websocket.send_json({"error": str(e)})
-    except WebSocketDisconnect:
-        pass
+                yield f"data: {str(e)}\n\n"
+            finally:
+                yield f"data: [DONE]"
+
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+    except ValidationError as e:
+        print(f"Validation Error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

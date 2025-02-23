@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
+import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
 import { Messages } from "@/components/messages";
-import { useStartChatSession } from "@/hooks/useStartChatSession.ts";
 import invariant from "@/lib/invariant";
 import KVStorage from "@/lib/kv-storage/KVStorage";
 import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
@@ -21,9 +21,7 @@ export function ConversationView() {
             : { id: "", title: "", messages: [] }
     );
 
-    const { connect } = useStartChatSession();
-
-    const handleSubmit: OnSubmit = ({ content, model }) => {
+    const handleSubmit: OnSubmit = async ({ content, model }) => {
         const newMessages: Message[] = [
             ...conversation.messages,
             { role: "user", content },
@@ -32,8 +30,11 @@ export function ConversationView() {
             ...conversation,
             messages: newMessages,
         };
-        KVStorage.setItem(conversationStorageKey, updatedConv);
-        connect({ conversationStorageKey, messages: newMessages, model });
+        await KVStorage.setItem(conversationStorageKey, updatedConv);
+        void chat(conversationStorageKey, {
+            messages: newMessages,
+            model,
+        });
     };
 
     return (

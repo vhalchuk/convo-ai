@@ -1,4 +1,5 @@
 python-dotenv==1.0.1
-openai==1.62.0
+openai==1.63.2
 fastapi[standard]==0.115.8
 uvicorn==0.34.0
+sse-starlette==2.2.1
