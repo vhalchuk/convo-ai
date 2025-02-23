@@ -1,31 +1,36 @@
-interface PostEventSourceOptions {
+type PostEventSourceOptions = {
     headers?: HeadersInit;
     body?: BodyInit | null;
-}
+};
+
+type ParsedEvent = {
+    data: string;
+    event: string;
+    id: string | null;
+    retry: number | null;
+};
 
 export class PostEventSource extends EventTarget {
-    static readonly CONNECTING: number = 0;
-    static readonly OPEN: number = 1;
-    static readonly CLOSED: number = 2;
+    static readonly CONNECTING = 0;
+    static readonly OPEN = 1;
+    static readonly CLOSED = 2;
 
-    public readyState: number = PostEventSource.CONNECTING;
+    public readyState = PostEventSource.CONNECTING;
     public onopen: ((evt: Event) => void) | null = null;
     public onmessage: ((evt: MessageEvent) => void) | null = null;
     public onerror: ((evt: Event) => void) | null = null;
 
-    private url: string;
-    private options: PostEventSourceOptions;
-    private _abortController: AbortController;
+    private abortController = new AbortController();
 
-    constructor(url: string, options: PostEventSourceOptions = {}) {
+    constructor(
+        private url: string,
+        private options: PostEventSourceOptions = {}
+    ) {
         super();
-        this.url = url;
-        this.options = options;
-        this._abortController = new AbortController();
-        this._start();
+        this.start();
     }
 
-    private async _start(): Promise<void> {
+    private async start(): Promise<void> {
         try {
             const response = await fetch(this.url, {
                 method: "POST",
@@ -34,16 +39,17 @@ export class PostEventSource extends EventTarget {
                     ...this.options.headers,
                 },
                 body: this.options.body,
-                signal: this._abortController.signal,
+                signal: this.abortController.signal,
             });
+            if (!response.body) throw new Error("No response body");
 
             this.readyState = PostEventSource.OPEN;
-            const openEvt = new Event("open");
-            this.dispatchEvent(openEvt);
-            if (this.onopen) this.onopen(openEvt);
+            const openEvent = new Event("open");
+            this.dispatchEvent(openEvent);
+            this.onopen?.(openEvent);
 
-            const reader: ReadableStreamDefaultReader<string> = response
-                .body!.pipeThrough(new TextDecoderStream())
+            const reader = response.body
+                .pipeThrough(new TextDecoderStream())
                 .getReader();
 
             let buffer = "";
@@ -53,26 +59,34 @@ export class PostEventSource extends EventTarget {
                 buffer += value;
                 const lines = buffer.split(/\r?\n/);
                 buffer = lines.pop() || "";
-                let event = {
+
+                let parsedEvent: ParsedEvent = {
                     data: "",
                     event: "message",
-                    id: null as string | null,
-                    retry: null as number | null,
+                    id: null,
+                    retry: null,
                 };
+
                 for (const line of lines) {
                     if (line === "") {
-                        if (event.data !== "") {
-                            event.data = event.data.replace(/\n$/, "");
-                            const msgEvt = new MessageEvent(event.event, {
-                                data: event.data,
-                                lastEventId: event.id || "",
-                            });
-                            this.dispatchEvent(msgEvt);
-                            if (event.event === "message" && this.onmessage) {
-                                this.onmessage(msgEvt);
+                        if (parsedEvent.data) {
+                            parsedEvent.data = parsedEvent.data.replace(
+                                /\n$/,
+                                ""
+                            );
+                            const messageEvent = new MessageEvent(
+                                parsedEvent.event,
+                                {
+                                    data: parsedEvent.data,
+                                    lastEventId: parsedEvent.id || "",
+                                }
+                            );
+                            this.dispatchEvent(messageEvent);
+                            if (parsedEvent.event === "message") {
+                                this.onmessage?.(messageEvent);
                             }
                         }
-                        event = {
+                        parsedEvent = {
                             data: "",
                             event: "message",
                             id: null,
@@ -81,42 +95,48 @@ export class PostEventSource extends EventTarget {
                     } else if (line.startsWith(":")) {
                         // comment line, ignore
                     } else {
-                        const colon = line.indexOf(":");
-                        let field: string, val: string;
-                        if (colon !== -1) {
-                            field = line.slice(0, colon);
-                            val = line.slice(colon + 1);
-                            // Remove exactly one leading space if present (per SSE spec)
-                            if (val.startsWith(" ")) {
-                                val = val.slice(1);
+                        const colonIndex = line.indexOf(":");
+                        let field: string, valueStr: string;
+                        if (colonIndex !== -1) {
+                            field = line.slice(0, colonIndex);
+                            valueStr = line.slice(colonIndex + 1);
+                            if (valueStr.startsWith(" ")) {
+                                valueStr = valueStr.slice(1);
                             }
                         } else {
                             field = line;
-                            val = "";
+                            valueStr = "";
                         }
-                        if (field === "data") {
-                            event.data += val + "\n";
-                        } else if (field === "event") {
-                            event.event = val;
-                        } else if (field === "id") {
-                            event.id = val;
-                        } else if (field === "retry") {
-                            event.retry = parseInt(val, 10);
+                        switch (field) {
+                            case "data":
+                                parsedEvent.data += valueStr + "\n";
+                                break;
+                            case "event":
+                                parsedEvent.event = valueStr;
+                                break;
+                            case "id":
+                                parsedEvent.id = valueStr;
+                                break;
+                            case "retry":
+                                parsedEvent.retry = parseInt(valueStr, 10);
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
             }
-        } catch (err) {
+        } catch {
             this.readyState = PostEventSource.CLOSED;
-            const errorEvt = new Event("error");
-            this.dispatchEvent(errorEvt);
-            if (this.onerror) this.onerror(errorEvt);
+            const errorEvent = new Event("error");
+            this.dispatchEvent(errorEvent);
+            this.onerror?.(errorEvent);
         }
         this.readyState = PostEventSource.CLOSED;
     }
 
     public close(): void {
-        this._abortController.abort();
+        this.abortController.abort();
         this.readyState = PostEventSource.CLOSED;
     }
 }
