@@ -13,7 +13,7 @@ on:
       - 'server/**'
 
 jobs:
-  black-check:
+  check:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,7 +31,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --no-cache-dir -r requirements-dev.txt
+        pip install --no-cache-dir -r requirements-ci.txt
 
-    - name: Run Black Formatter Check
-      run: black --check .
+    - name: Run format
+      run: make format-check
