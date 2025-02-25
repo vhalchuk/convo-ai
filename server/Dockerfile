@@ -5,8 +5,8 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Install Python dependencies
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements/app.txt requirements/app.txt
+RUN pip install --no-cache-dir -r requirements/app.txt
 
 # Copy the rest of the application code
 COPY . .
