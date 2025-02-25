@@ -1,9 +1,9 @@
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
-from pydantic import ValidationError, BaseModel
+from fastapi import APIRouter, HTTPException
+from pydantic import ValidationError
 from starlette.responses import StreamingResponse
 
 from exceptions import AuthenticationError, RateLimitError, ServiceError
-from models import ChatRequest, ChatResponse, ChatResponseV2
+from models import ChatRequest, ChatResponse
 from services import chat_service, chat_service_v2
 
 router = APIRouter()
