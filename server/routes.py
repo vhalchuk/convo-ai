@@ -35,14 +35,17 @@ def sse_endpoint(request: ChatRequest):
                     request.model,
                     request.messages,
                 ):
-                    if chunk is not None:
-                        lines = chunk.split("\n")
-                        s = (
-                            "event: delta\n"
-                            + "".join(f"data: {line}\n" for line in lines)
-                            + "\n"
-                        )
-                        yield s
+                    if not isinstance(chunk, str):
+                        continue
+
+                    lines = chunk.split("\n")
+                    s = (
+                        "event: delta\n"
+                        + "".join(f"data: {line}\n" for line in lines)
+                        + "\n"
+                    )
+                    yield s
+
             except Exception as e:
                 print(f"Error during chat processing: {e}")
                 yield f"data: {str(e)}\n\n"
