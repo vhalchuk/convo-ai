@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
 import KVStorage from "@/lib/kv-storage/KVStorage";
+import { tryCatch } from "@/lib/tryCatch.ts";
 import { Conversation } from "@/types";
 
 export function EmptyConversationView() {
@@ -19,8 +20,8 @@ export function EmptyConversationView() {
             messages: [{ role: "user", content }],
         };
 
-        try {
-            await Promise.all([
+        await tryCatch(
+            Promise.all([
                 KVStorage.setItem(newConversationId, newConv),
                 KVStorage.updateItem("conversation-list", (oldValue = []) => [
                     {
@@ -29,11 +30,8 @@ export function EmptyConversationView() {
                     },
                     ...oldValue,
                 ]),
-            ]);
-        } catch (error) {
-            console.error("Error creating a new conversation:", error);
-            return;
-        }
+            ])
+        );
 
         navigate(`/${newId}`, { replace: true });
 
