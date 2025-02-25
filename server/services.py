@@ -1,8 +1,9 @@
 import openai
 from openai import OpenAI
+
 from config import settings
-from models import Message, Role
 from exceptions import AuthenticationError, RateLimitError, ServiceError
+from models import Message, Role
 
 client = OpenAI(api_key=settings.openai_api_key)
 

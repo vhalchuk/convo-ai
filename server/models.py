@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field, field_validator
-from typing import List
 from enum import Enum
+from typing import List
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class OpenAIModel(str, Enum):

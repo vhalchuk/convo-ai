@@ -1,5 +1,6 @@
 import pytest
 import requests
+
 from models import OpenAIModel, Role
 
 BASE_URL = "http://localhost:8000"
