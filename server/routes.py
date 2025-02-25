@@ -47,7 +47,7 @@ def sse_endpoint(request: ChatRequest):
                 print(f"Error during chat processing: {e}")
                 yield f"data: {str(e)}\n\n"
             finally:
-                yield f"data: [DONE]"
+                yield "data: [DONE]"
 
         return StreamingResponse(event_generator(), media_type="text/event-stream")
 
