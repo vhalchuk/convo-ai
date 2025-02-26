@@ -15,7 +15,7 @@ on:
       - '.github/workflows/client-check.yml'
 
 jobs:
-  lint-and-prettier:
+  check:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,3 +40,6 @@ jobs:
 
       - name: Check Prettier formatting
         run: pnpm run prettier
+
+      - name: Run Vitest Tests
+        run: pnpm run test
