@@ -6,11 +6,13 @@ on:
       - 'main'
     paths:
       - 'client/src/**'
+      - '.github/workflows/client-check.yml'
   pull_request:
     branches:
       - 'main'
     paths:
       - 'client/src/**'
+      - '.github/workflows/client-check.yml'
 
 jobs:
   lint-and-prettier:

@@ -6,11 +6,13 @@ on:
       - 'main'
     paths:
       - 'server/**'
+      - '.github/workflows/server-check.yml'
   pull_request:
     branches:
       - 'main'
     paths:
       - 'server/**'
+      - '.github/workflows/server-check.yml'
 
 jobs:
   check:
