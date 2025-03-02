@@ -22,13 +22,16 @@ export class PostEventSource extends EventTarget {
     public onmessage: ((evt: MessageEvent) => void) | null = null;
     public onerror: ((evt: Event) => void) | null = null;
 
+    private url: string;
+    private options: PostEventSourceOptions;
     private abortController = new AbortController();
 
-    constructor(
-        private url: string,
-        private options: PostEventSourceOptions = {}
-    ) {
+    constructor(url: string, options: PostEventSourceOptions = {}) {
         super();
+
+        this.url = url;
+        this.options = options;
+
         void this.start();
     }
 
