@@ -4,7 +4,7 @@ import { PostEventSource } from "./PostEventSource";
 
 // Polyfill TextDecoderStream if not available (Node environment)
 if (typeof global.TextDecoderStream === "undefined") {
-    // @ts-expect-error mock
+    // @ts-expect-error It's okay for mock not to conform to the original type
     global.TextDecoderStream = class {
         readable: ReadableStream;
         writable: WritableStream;

@@ -33,12 +33,12 @@ export function EmptyConversationView() {
             ])
         );
 
-        navigate(`/${newId}`, { replace: true });
-
-        void chat(newConversationId, {
+        chat(newConversationId, {
             messages: newConv.messages,
             model,
         });
+
+        void navigate(`/${newId}`, { replace: true });
     };
 
     return (

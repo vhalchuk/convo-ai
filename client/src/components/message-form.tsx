@@ -10,7 +10,10 @@ import { MODELS } from "@/constants";
 import invariant from "@/lib/invariant";
 import { Model } from "@/types";
 
-export type OnSubmit = (data: { content: string; model: Model }) => void;
+export type OnSubmit = (data: {
+    content: string;
+    model: Model;
+}) => Promise<void>;
 
 type Props = {
     onSubmit: OnSubmit;
@@ -19,7 +22,7 @@ type Props = {
 export function MessageForm({ onSubmit }: Props) {
     return (
         <form
-            onSubmit={async (event) => {
+            onSubmit={(event) => {
                 event.preventDefault();
                 const formData = new FormData(event.currentTarget);
                 const content = formData.get("content") as string | undefined;
@@ -28,7 +31,7 @@ export function MessageForm({ onSubmit }: Props) {
                 invariant(content, "Content must be defined");
                 invariant(model, "Model must be defined");
 
-                onSubmit({ content, model });
+                void onSubmit({ content, model });
                 event.currentTarget.reset();
             }}
         >

@@ -1,15 +1,37 @@
+// @ts-check
 import js from "@eslint/js";
-import globals from "globals";
+import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import globals from "globals";
 import tseslint from "typescript-eslint";
-import reactCompiler from "eslint-plugin-react-compiler";
 
 export default tseslint.config(
     { ignores: ["dist"] },
     {
-        extends: [js.configs.recommended, ...tseslint.configs.recommended],
+        extends: [
+            js.configs.recommended,
+            tseslint.configs.strictTypeChecked,
+            ...tseslint.configs.stylisticTypeChecked,
+            {
+                languageOptions: {
+                    parserOptions: {
+                        project: [
+                            "./tsconfig.node.json",
+                            "./tsconfig.app.json",
+                        ],
+                        tsconfigRootDir: import.meta.dirname,
+                    },
+                },
+            },
+        ],
         files: ["**/*.{ts,tsx}"],
+        ignores: [
+            "dist",
+            "**/*.test.{ts,tsx}",
+            // FIXME: remove ui directory from `ignores`
+            "src/components/ui/**/*.{ts,tsx}",
+        ],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
@@ -26,6 +48,13 @@ export default tseslint.config(
                 { allowConstantExport: true },
             ],
             "react-compiler/react-compiler": "error",
+            "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+            "@typescript-eslint/restrict-template-expressions": [
+                "error",
+                {
+                    allowNumber: true,
+                },
+            ],
         },
     }
 );

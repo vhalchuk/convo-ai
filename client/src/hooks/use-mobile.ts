@@ -8,15 +8,27 @@ export function useIsMobile() {
     );
 
     React.useEffect(() => {
+        const controller = new AbortController();
+
         const mql = window.matchMedia(
             `(max-width: ${MOBILE_BREAKPOINT - 1}px)`
         );
-        const onChange = () => {
-            setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-        };
-        mql.addEventListener("change", onChange);
+
+        mql.addEventListener(
+            "change",
+            () => {
+                setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+            },
+            {
+                signal: controller.signal,
+            }
+        );
+
         setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-        return () => mql.removeEventListener("change", onChange);
+
+        return () => {
+            controller.abort();
+        };
     }, []);
 
     return !!isMobile;

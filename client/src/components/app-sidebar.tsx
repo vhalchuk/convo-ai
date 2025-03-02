@@ -25,15 +25,15 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     const { conversationId } = useParams<{ conversationId?: string }>();
 
     const handleDelete = (id: string) => {
-        if (conversationId === id) {
-            navigate("/");
-        }
-
         void KVStorage.updateItem("conversation-list", (conversationList) => {
             invariant(conversationList, "Conversation list must be defined");
             return conversationList.filter((item) => item.id !== id);
         });
         void KVStorage.deleteItem(`conversation-${id}`);
+
+        if (conversationId === id) {
+            void navigate("/");
+        }
     };
 
     return (

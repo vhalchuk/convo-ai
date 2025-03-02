@@ -14,13 +14,14 @@ function useKVStorageValue<T extends KVStorageKey>(
     // Load initial value from KVStorage on mount
     useEffect(() => {
         let isMounted = true;
-        (async () => {
+
+        void tryCatch(async () => {
             const { data } = await tryCatch(KVStorage.getItem(key));
 
             if (data && isMounted) {
                 setState(data);
             }
-        })();
+        });
 
         return () => {
             isMounted = false;

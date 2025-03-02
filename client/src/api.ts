@@ -5,7 +5,7 @@ import KVStorage from "@/lib/kv-storage/KVStorage.ts";
 import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
 import { ConversationStorageKey, RequestBody } from "@/types";
 
-export async function chat(
+export function chat(
     conversationStorageKey: ConversationStorageKey,
     body: RequestBody
 ) {
@@ -17,23 +17,30 @@ export async function chat(
     });
 
     eventSource.addEventListener("delta", (event) => {
-        KVStorage.updateItem(conversationStorageKey, (prevConversation) => {
-            invariant(
-                prevConversation,
-                "Previous conversation must be defined"
-            );
-            invariant(
-                event instanceof MessageEvent,
-                "Event must be a MessageEvent"
-            );
+        void KVStorage.updateItem(
+            conversationStorageKey,
+            (prevConversation) => {
+                invariant(
+                    prevConversation,
+                    "Previous conversation must be defined"
+                );
+                invariant(
+                    event instanceof MessageEvent,
+                    "Event must be a MessageEvent"
+                );
+                invariant(
+                    typeof event.data === "string",
+                    "Event data must be a string"
+                );
 
-            return {
-                ...prevConversation,
-                messages: upsertAssistantResponseMessage(
-                    prevConversation.messages,
-                    event.data
-                ),
-            };
-        });
+                return {
+                    ...prevConversation,
+                    messages: upsertAssistantResponseMessage(
+                        prevConversation.messages,
+                        event.data
+                    ),
+                };
+            }
+        );
     });
 }

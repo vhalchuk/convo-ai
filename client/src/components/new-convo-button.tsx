@@ -11,7 +11,7 @@ export function NewConvoButton() {
             size="icon"
             className={"h-7 w-7"}
             onClick={() => {
-                navigate("/");
+                void navigate("/");
             }}
         >
             <SquarePen />

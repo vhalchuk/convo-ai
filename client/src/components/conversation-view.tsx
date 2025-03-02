@@ -31,7 +31,7 @@ export function ConversationView() {
             messages: newMessages,
         };
         await KVStorage.setItem(conversationStorageKey, updatedConv);
-        void chat(conversationStorageKey, {
+        chat(conversationStorageKey, {
             messages: newMessages,
             model,
         });

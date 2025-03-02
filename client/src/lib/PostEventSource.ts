@@ -1,3 +1,5 @@
+import { merge } from "lodash";
+
 type PostEventSourceOptions = {
     headers?: HeadersInit;
     body?: BodyInit | null;
@@ -27,17 +29,19 @@ export class PostEventSource extends EventTarget {
         private options: PostEventSourceOptions = {}
     ) {
         super();
-        this.start();
+        void this.start();
     }
 
     private async start(): Promise<void> {
         try {
             const response = await fetch(this.url, {
                 method: "POST",
-                headers: {
-                    Accept: "text/event-stream",
-                    ...this.options.headers,
-                },
+                headers: merge(
+                    {
+                        Accept: "text/event-stream",
+                    },
+                    this.options.headers
+                ),
                 body: this.options.body,
                 signal: this.abortController.signal,
             });
@@ -53,12 +57,13 @@ export class PostEventSource extends EventTarget {
                 .getReader();
 
             let buffer = "";
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
                 buffer += value;
                 const lines = buffer.split(/\r?\n/);
-                buffer = lines.pop() || "";
+                buffer = lines.pop() ?? "";
 
                 let parsedEvent: ParsedEvent = {
                     data: "",
@@ -78,7 +83,7 @@ export class PostEventSource extends EventTarget {
                                 parsedEvent.event,
                                 {
                                     data: parsedEvent.data,
-                                    lastEventId: parsedEvent.id || "",
+                                    lastEventId: parsedEvent.id ?? "",
                                 }
                             );
                             this.dispatchEvent(messageEvent);

@@ -1,4 +1,5 @@
 import { del, get, set, update } from "idb-keyval";
+import invariant from "@/lib/invariant.ts";
 import { KVStorageKey, KVStorageValue } from "@/types";
 
 type Updater<T> = (oldValue: T | undefined) => T;
@@ -9,7 +10,7 @@ class KVStorage {
     private subscriptions = new Map<
         KVStorageKey,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Array<(value: any) => void>
+        ((value: any) => void)[]
     >();
 
     constructor() {
@@ -51,7 +52,7 @@ class KVStorage {
         updater: Updater<KVStorageValue<T>>
     ) {
         try {
-            await update(key, (oldValue) => {
+            await update<KVStorageValue<T> | undefined>(key, (oldValue) => {
                 const newValue = updater(oldValue);
                 this.notifySubscribers(key, newValue);
                 return newValue;
@@ -81,7 +82,10 @@ class KVStorage {
         if (!this.subscriptions.has(key)) {
             this.subscriptions.set(key, []);
         }
-        this.subscriptions.get(key)!.push(callback);
+        const subs = this.subscriptions.get(key);
+        invariant(subs, "Subscriptions must be defined");
+        subs.push(callback);
+
         return () => {
             const subs = this.subscriptions.get(key);
             if (subs) {
