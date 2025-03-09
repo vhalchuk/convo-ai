@@ -16,10 +16,13 @@ app.listen(port, () => {
     const client = new OpenAI({
         apiKey: env.OPENAI_API_KEY
     })
-    const chatCompletion = await client.chat.completions.create({
+    const stream = await client.chat.completions.create({
         messages: [{ role: 'user', content: 'Say this is a test' }],
         model: 'gpt-4o',
+        stream: true
     });
 
-    console.log(chatCompletion.choices[0]?.message.content);
+    for await (const chunk of stream) {
+        process.stdout.write(chunk.choices[0]?.delta?.content || '');
+    }
 })();
