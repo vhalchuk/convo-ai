@@ -1,5 +1,6 @@
 import express from "express";
 import router from "./router";
+import { env } from "./env";
 
 const port = 8000;
 const app = express();
