@@ -1,28 +1,38 @@
 import express from "express";
-import OpenAI from "openai";
-import router from "./router";
-import { env } from "./env";
+import router from "@/router";
+import { requestErrorHandler } from "@/middleware/request-error-handler";
+import { corsMiddleware } from "@/middleware/cors";
+import { addGracefulShutdownListeners } from "@/graceful-shutdown";
+import { initializeServices } from "@/services";
+import { logger } from "@/services/logger";
 
-const port = 8000;
-const app = express();
+const main = async () => {
+    try {
+        await initializeServices();
+    } catch (error) {
+        logger.log({
+            severity: logger.SEVERITIES.Error,
+            message: `Application failed to start due to service initialization failure: ${error}`
+        });
+        process.exit(1);
+    }
 
-app.use(router);
+    const port = 8000;
+    const app = express();
 
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-});
+    app.use(corsMiddleware);
+    app.use(express.json());
+    app.use(router);
+    app.use(requestErrorHandler);
 
-(async () => {
-    const client = new OpenAI({
-        apiKey: env.OPENAI_API_KEY
-    })
-    const stream = await client.chat.completions.create({
-        messages: [{ role: 'user', content: 'Say this is a test' }],
-        model: 'gpt-4o',
-        stream: true
+    const server = app.listen(port, () => {
+        logger.log({
+            severity: logger.SEVERITIES.Info,
+            message: `Server listening on port ${port}`
+        });
     });
 
-    for await (const chunk of stream) {
-        process.stdout.write(chunk.choices[0]?.delta?.content || '');
-    }
-})();
+    addGracefulShutdownListeners(server);
+}
+
+void main();
