@@ -5,7 +5,7 @@
     "clean:dist": "rimraf ./dist",
     "clean:public": "rimraf ./public",
     "clean": "npm run clean:dist && npm run clean:public",
-    "build": "TO BE IMPLEMENTED",
+    "build": "npm run clean:dist && esbuild src/index.ts --outfile=dist/index.js --bundle --sourcemap --platform=node --target=esnext --packages=external",
     "start": "cross-env ENV=production node ./dist/index.js",
     "type-check": "tsc --noEmit"
   },
@@ -24,7 +24,9 @@
     "@types/express": "^5.0.0",
     "@types/lodash": "^4.17.12",
     "@types/node": "~22.13.0",
+    "rimraf": "^6.0.1",
     "cross-env": "^7.0.3",
+    "esbuild": "^0.25.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }
