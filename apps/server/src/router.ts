@@ -5,7 +5,7 @@ import { conversationReqBodySchema } from "@convo-ai/shared";
 
 const router = Router();
 
-router.get("/status", (req, res) => {
+router.get("/status", (_req, res) => {
     res
         .status(200)
         .send();

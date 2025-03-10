@@ -7,7 +7,8 @@
     "clean": "rimraf ./dist",
     "build": "pnpm run clean && node build.mjs",
     "start": "cross-env ENV=production node ./dist/index.mjs",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "check": "pnpm run type-check"
   },
   "dependencies": {
     "@convo-ai/shared": "workspace:*",

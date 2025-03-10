@@ -9,7 +9,8 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "build": "pnpm run clean && node build.mjs",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "check": "pnpm run type-check"
   },
   "dependencies": {
     "lodash-es": "^4.17.21",

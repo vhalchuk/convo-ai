@@ -12,7 +12,8 @@
         "format": "prettier --write --ignore-unknown .",
         "format:check": "prettier --check --ignore-unknown .",
         "preview": "vite preview",
-        "test": "vitest"
+        "test": "vitest run",
+        "check": "pnpm run format:check && pnpm run type-check && pnpm run lint && pnpm run test"
     },
     "dependencies": {
         "@convo-ai/shared": "workspace:*",

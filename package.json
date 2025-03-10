@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "dev": "concurrently --names \"CLIENT,SERVER\" --prefix-colors \"blue,magenta\" \"pnpm --filter @convo-ai/client run dev\" \"pnpm --filter @convo-ai/server run dev\"",
-    "type-check": "pnpm run -r type-check",
+    "check": "pnpm run -r check",
     "clean": "pnpm run -r clean",
     "build:packages": "pnpm --filter @convo-ai/shared run build",
     "build:client": "pnpm --filter @convo-ai/client run build",
