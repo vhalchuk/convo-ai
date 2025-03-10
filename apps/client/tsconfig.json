@@ -1,15 +1,15 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      /* Resolve to packages' source code: */
-      "@convo-ai/*": ["../../packages/*/src/index.ts"]
+    "files": [],
+    "references": [
+        { "path": "./tsconfig.app.json" },
+        { "path": "./tsconfig.node.json" }
+    ],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"],
+            /* Resolve to packages' source code: */
+            "@convo-ai/*": ["../../packages/*/src/index.ts"]
+        }
     }
-  }
 }
