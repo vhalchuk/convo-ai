@@ -4,10 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env ENV=development tsx watch src/index.ts",
-    "clean:dist": "rimraf ./dist",
-    "clean:public": "rimraf ./public",
-    "clean": "npm run clean:dist && npm run clean:public",
-    "build": "npm run clean:dist && node build.mjs",
+    "clean": "rimraf ./dist",
+    "build": "pnpm run clean && node build.mjs",
     "start": "cross-env ENV=production node ./dist/index.mjs",
     "type-check": "tsc --noEmit"
   },

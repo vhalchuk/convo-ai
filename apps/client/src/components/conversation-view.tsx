@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
+import { Message } from "@convo-ai/shared";
 import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
 import { Messages } from "@/components/messages";
 import invariant from "@/lib/invariant";
 import KVStorage from "@/lib/kv-storage/KVStorage";
 import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
-import { Conversation, Message } from "@/types";
+import { Conversation } from "@/types";
 
 export function ConversationView() {
     const { conversationId } = useParams<{ conversationId?: string }>();

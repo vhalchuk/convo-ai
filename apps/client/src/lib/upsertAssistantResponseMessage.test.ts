@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { ROLES } from "@/constants.ts";
+import { ROLES } from "@convo-ai/shared";
+import { Message } from "@convo-ai/shared";
 import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
-import { Message } from "@/types.ts";
 
 describe("upsertAssistantResponseMessage", () => {
     it("inserts a message at the end of the messages array", () => {

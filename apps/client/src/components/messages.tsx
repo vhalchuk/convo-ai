@@ -1,5 +1,5 @@
 import Markdown from "react-markdown";
-import { Message } from "@/types";
+import { Message } from "@convo-ai/shared";
 
 type Props = {
     messages: Message[];

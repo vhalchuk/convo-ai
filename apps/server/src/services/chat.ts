@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { env } from "@/env";
-import { Message, Model } from "@/types";
+import { Message, Model } from "@convo-ai/shared";
 import { Service } from "@/services/service-interface";
 import { invariant } from "@epic-web/invariant";
 import { logger } from "@/services/logger";

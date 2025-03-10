@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validate } from "@/utils/validate";
-import { conversationSchema } from "@/schemas";
 import { chat } from "@/services/chat";
+import { conversationReqBodySchema } from "@convo-ai/shared";
 
 const router = Router();
 
@@ -12,7 +12,7 @@ router.get("/status", (req, res) => {
 });
 
 router.post("/conversation", async (req, res) => {
-    const { model, messages } = validate(conversationSchema, req.body);
+    const { model, messages } = validate(conversationReqBodySchema, req.body);
 
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");

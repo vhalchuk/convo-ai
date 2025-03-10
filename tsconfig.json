@@ -8,24 +8,15 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
-
-    /* React */
-    "jsx": "react-jsx",
+    "erasableSyntaxOnly": true,
 
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-
-    /* If NOT transpiling with TypeScript: */
-    "module": "preserve",
-    "noEmit": true,
-
-    /* If your code doesn't run in the DOM: */
-    "lib": ["es2022", "dom"],
-
-    "paths": {}
-  },
-
-  "include": ["src"]
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  }
 }

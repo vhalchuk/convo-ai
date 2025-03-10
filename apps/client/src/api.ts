@@ -1,13 +1,14 @@
+import { ConversationReqBody } from "@convo-ai/shared";
 import { env } from "@/env";
 import { PostEventSource } from "@/lib/PostEventSource.ts";
 import invariant from "@/lib/invariant.ts";
 import KVStorage from "@/lib/kv-storage/KVStorage.ts";
 import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
-import { ConversationStorageKey, RequestBody } from "@/types";
+import { ConversationStorageKey } from "@/types";
 
 export function chat(
     conversationStorageKey: ConversationStorageKey,
-    body: RequestBody
+    body: ConversationReqBody
 ) {
     const eventSource = new PostEventSource(
         `${env.VITE_API_DOMAIN}/conversation`,

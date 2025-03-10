@@ -9,11 +9,13 @@
     "analyze": "ANALYZE=true vite build",
     "lint": "eslint .",
     "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
-    "prettier": "prettier --check src",
+    "format": "prettier --write --ignore-unknown src",
+    "format:check": "prettier --check --ignore-unknown src",
     "preview": "vite preview",
     "test": "vitest"
   },
   "dependencies": {
+    "@convo-ai/shared": "workspace:*",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-select": "^2.1.5",
     "@radix-ui/react-separator": "^1.1.2",

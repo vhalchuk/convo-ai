@@ -1,6 +1,6 @@
-import { ROLES } from "@/constants.ts";
+import { ROLES } from "@convo-ai/shared";
+import { Message } from "@convo-ai/shared";
 import invariant from "@/lib/invariant.ts";
-import { Message } from "@/types.ts";
 
 export function upsertAssistantResponseMessage(
     messages: Message[],

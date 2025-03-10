@@ -1,4 +1,4 @@
-import { MODELS, ROLES } from "@/const";
+import { MODELS, ROLES } from "./enums";
 
 export type Model = (typeof MODELS)[keyof typeof MODELS];
 

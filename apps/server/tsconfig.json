@@ -1,22 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
+
   "compilerOptions": {
-    /* Base Options: */
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "target": "es2022",
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-
-    /* React */
-    "jsx": "react-jsx",
-
-    /* Strictness */
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-
     /* If NOT transpiling with TypeScript: */
     "module": "preserve",
     "noEmit": true,
@@ -25,7 +10,11 @@
     "lib": ["es2022"],
 
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      /* Resolve to packages' source code: */
+      "@convo-ai/*": ["../../packages/*/src/index.ts"]
     }
-  }
+  },
+
+  "include": ["src"]
 }

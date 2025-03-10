@@ -1,3 +1,5 @@
+import { MODELS } from "@convo-ai/shared";
+import { Model } from "@convo-ai/shared";
 import {
     Select,
     SelectContent,
@@ -6,9 +8,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MODELS } from "@/constants";
 import invariant from "@/lib/invariant";
-import { Model } from "@/types";
 
 export type OnSubmit = (data: {
     content: string;

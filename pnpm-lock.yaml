@@ -14,6 +14,9 @@ importers:
 
   apps/client:
     dependencies:
+      '@convo-ai/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@radix-ui/react-dialog':
         specifier: ^1.1.6
         version: 1.1.6(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -205,6 +208,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.2
     devDependencies:
       '@types/lodash-es':
         specifier: ^4.17.12
