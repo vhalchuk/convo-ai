@@ -1,0 +1,41 @@
+name: Client check
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'apps/client/src/**'
+      - 'apps/server/src/**'
+      - 'packages/shared/src/**'
+      - '.github/workflows/check.yml'
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'apps/client/src/**'
+      - 'apps/server/src/**'
+      - 'packages/shared/src/**'
+      - '.github/workflows/check.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 22 and pnpm cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run All Checks
+        run: pnpm run check
