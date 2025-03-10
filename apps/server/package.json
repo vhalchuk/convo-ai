@@ -1,32 +1,35 @@
 {
   "name": "@convo-ai/server",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "cross-env ENV=development tsx watch src/index.ts",
     "clean:dist": "rimraf ./dist",
     "clean:public": "rimraf ./public",
     "clean": "npm run clean:dist && npm run clean:public",
-    "build": "npm run clean:dist && esbuild src/index.ts --outfile=dist/index.js --bundle --sourcemap --platform=node --target=esnext --packages=external",
-    "start": "cross-env ENV=production node ./dist/index.js",
+    "build": "npm run clean:dist && node build.mjs",
+    "start": "cross-env ENV=production node ./dist/index.mjs",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@convo-ai/shared": "workspace:*",
     "@epic-web/invariant": "^1.0.0",
     "@t3-oss/env-core": "^0.12.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "openai": "^4.86.2",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/lodash": "^4.17.12",
+    "@types/lodash-es": "^4.17.12",
     "@types/node": "~22.13.0",
-    "rimraf": "^6.0.1",
     "cross-env": "^7.0.3",
     "esbuild": "^0.25.0",
+    "rimraf": "^6.0.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }

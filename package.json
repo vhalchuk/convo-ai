@@ -1,0 +1,20 @@
+{
+  "name": "convo-ai",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently --names \"CLIENT,SERVER\" --prefix-colors \"blue,magenta\" \"pnpm --filter @convo-ai/client run dev\" \"pnpm --filter @convo-ai/server run dev\"",
+    "type-check": "pnpm run -r type-check",
+    "clean": "pnpm run -r clean",
+    "build:packages": "pnpm --filter @convo-ai/shared run build",
+    "build:client": "pnpm --filter @convo-ai/client run build",
+    "build:server": "pnpm --filter @convo-ai/server run build",
+    "build": "pnpm run build:packages && pnpm run build:client && pnpm run build:server",
+    "serve": "pnpm --filter @convo-ai/server run start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@convo-ai/shared",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "build": "pnpm run clean && node build.mjs",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "rimraf": "~6.0.0",
+    "typescript": "^5.8.2",
+    "tsx": "^4.19.3",
+    "esbuild": "^0.25.0",
+    "esbuild-plugin-lodash": "^1.2.0"
+  }
+}
