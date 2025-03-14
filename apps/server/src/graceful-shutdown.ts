@@ -14,13 +14,28 @@ const makeGracefulShutdown = (server: Server): GracefulShutdown => async (reason
 
     try {
         await cleanupServices();
-        server.close(() => {
+        server.close((err) => {
+            if (err) {
+                    logger.log({
+                        severity: logger.SEVERITIES.Error,
+                        message: `Error during server close: ${err.message}`,
+                    });
+                    process.exit(1);
+                    return;
+            }
             logger.log({
                 severity: logger.SEVERITIES.Info,
                 message: `Server has been successfully shut-down`,
             });
             process.exit();
-        })
+        });
+        setTimeout(() => {
+            logger.log({
+                severity: logger.SEVERITIES.Error,
+                message: "Server close timed out after 10 seconds, forcing exit",
+            });
+            process.exit(1);
+        }, 10_000);
     } catch (ex) {
         process.exit(1);
     }

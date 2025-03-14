@@ -8,7 +8,10 @@ const router = Router();
 router.get("/status", (_req, res) => {
     res
         .status(200)
-        .send();
+        .json({
+            status: "ok",
+            timestamp: new Date().toISOString()
+        })
 });
 
 router.post("/conversation", async (req, res) => {
