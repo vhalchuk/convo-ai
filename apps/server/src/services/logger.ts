@@ -7,7 +7,7 @@ const LOG_SEVERITIES = {
     Info: "info",
     Debug: "debug",
 } as const;
-type LogSeverity = (keyof typeof LOG_SEVERITIES)[number];
+type LogSeverity = (typeof LOG_SEVERITIES)[keyof typeof LOG_SEVERITIES];
 
 type LoggerParams = {
     severity: LogSeverity;

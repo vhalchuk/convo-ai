@@ -8,8 +8,8 @@ const makeGracefulShutdown = (server: Server): GracefulShutdown => async (reason
     logger.log({
         severity: logger.SEVERITIES.Fatal,
         message: reason instanceof Error
-            ? `Unhandled Rejection: ${reason.message}, stack trace: ${reason.stack}`
-            : "Unhandled Rejection",
+            ? `Server shutting down: ${reason.message}, stack trace: ${reason.stack}`
+            : `Server shutting down: ${reason}`,
     });
 
     try {
@@ -35,12 +35,5 @@ export const addGracefulShutdownListeners = (server: Server) => {
     process.on("SIGINT", signalShutdown("SIGINT"));
     process.on("SIGHUP", signalShutdown("SIGHUP"));
     process.on("uncaughtException", gracefulShutdown);
-    process.on("unhandledRejection", function (reason) {
-        logger.log({
-            severity: logger.SEVERITIES.Error,
-            message: reason instanceof Error
-                ? `Unhandled Rejection: ${reason.message}, stack trace: ${reason.stack}`
-                : "Unhandled Rejection",
-        });
-    });
+    process.on("unhandledRejection", gracefulShutdown);
 }

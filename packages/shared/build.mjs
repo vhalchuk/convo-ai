@@ -13,7 +13,7 @@ import esbuild from 'esbuild';
         platform: 'neutral',
         target: 'esnext',
         format: 'esm',
-        outfile: 'dist/index.js',
+        outfile: 'dist/index.mjs',
     });
 
     const end = Date.now();

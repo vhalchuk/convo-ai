@@ -39,7 +39,7 @@ class Chat implements Service {
         return this.openaiClient.chat.completions.create({
             messages,
             model,
-            stream: true
+            stream: true,
         });
     }
 }
