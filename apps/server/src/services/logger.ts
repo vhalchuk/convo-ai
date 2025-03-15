@@ -12,16 +12,17 @@ type LogSeverity = (typeof LOG_SEVERITIES)[keyof typeof LOG_SEVERITIES];
 type LoggerParams = {
     severity: LogSeverity;
     message: string;
-}
+};
 
 class Logger implements Service {
     name = "LoggerService";
 
     public SEVERITIES = LOG_SEVERITIES;
 
-    private logLevel: LogSeverity = process.env.NODE_ENV === "production"
-        ? LOG_SEVERITIES.Info
-        : LOG_SEVERITIES.Debug;
+    private logLevel: LogSeverity =
+        process.env.NODE_ENV === "production"
+            ? LOG_SEVERITIES.Info
+            : LOG_SEVERITIES.Debug;
 
     private shouldLog(severity: LogSeverity): boolean {
         const levels = Object.values(LOG_SEVERITIES);

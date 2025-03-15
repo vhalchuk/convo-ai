@@ -62,7 +62,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                                     <Button
                                         variant="link"
                                         size="icon"
-                                        className="absolute bottom-0 top-0 right-0 size-8 invisible group-hover/menu-item:visible"
+                                        className="invisible absolute top-0 right-0 bottom-0 size-8 group-hover/menu-item:visible"
                                         aria-label="Delete conversation"
                                         onClick={() => {
                                             handleDelete(item.id);

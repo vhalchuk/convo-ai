@@ -1,14 +1,14 @@
-import OpenAI from "openai";
-import { env } from "@/env";
-import { Message, Model } from "@convo-ai/shared";
-import { Service } from "@/services/service-interface";
 import { invariant } from "@epic-web/invariant";
+import OpenAI from "openai";
+import { Message, Model } from "@convo-ai/shared";
+import { env } from "@/env";
 import { logger } from "@/services/logger";
+import { Service } from "@/services/service-interface";
 
 type ChatCompletionCreateParams = {
     messages: Message[];
     model: Model;
-}
+};
 
 class Chat implements Service {
     name = "ChatService";
@@ -20,19 +20,25 @@ class Chat implements Service {
         if (this.isInitialized) {
             logger.log({
                 severity: logger.SEVERITIES.Warn,
-                message: `${this.name} is already initialized.`
+                message: `${this.name} is already initialized.`,
             });
             return;
         }
         this.openaiClient = new OpenAI({
-            apiKey: env.OPENAI_API_KEY
+            apiKey: env.OPENAI_API_KEY,
         });
         this.isInitialized = true;
     }
 
     public async createCompletion(params: ChatCompletionCreateParams) {
-        invariant(this.isInitialized, `${this.name} must be initialized before use. Call initialize() first.`);
-        invariant(this.openaiClient, "OpenAI client is not initialized. This should not happen if initialize() was called.");
+        invariant(
+            this.isInitialized,
+            `${this.name} must be initialized before use. Call initialize() first.`
+        );
+        invariant(
+            this.openaiClient,
+            "OpenAI client is not initialized. This should not happen if initialize() was called."
+        );
 
         const { model, messages } = params;
 

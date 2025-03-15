@@ -1,17 +1,15 @@
 import { Router } from "express";
-import { validate } from "@/utils/validate";
-import { chat } from "@/services/chat";
 import { conversationReqBodySchema } from "@convo-ai/shared";
+import { chat } from "@/services/chat";
+import { validate } from "@/utils/validate";
 
 const router = Router();
 
 router.get("/status", (_req, res) => {
-    res
-        .status(200)
-        .json({
-            status: "ok",
-            timestamp: new Date().toISOString()
-        })
+    res.status(200).json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+    });
 });
 
 router.post("/conversation", async (req, res) => {
@@ -24,7 +22,7 @@ router.post("/conversation", async (req, res) => {
     try {
         const stream = await chat.createCompletion({
             model,
-            messages
+            messages,
         });
 
         for await (const chunk of stream) {
@@ -32,7 +30,10 @@ router.post("/conversation", async (req, res) => {
 
             if (typeof content !== "string") continue;
 
-            const lines = content.split("\n").map(line => `data: ${line}\n`).join("");
+            const lines = content
+                .split("\n")
+                .map((line) => `data: ${line}\n`)
+                .join("");
             res.write(`event: delta\n${lines}\n`);
         }
     } finally {
