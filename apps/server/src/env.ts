@@ -1,16 +1,13 @@
 import { createEnv } from "@t3-oss/env-core";
+import dotenv from "dotenv";
 import { z } from "zod";
-import dotenv from 'dotenv';
 
 dotenv.config();
 
 export const env = createEnv({
     server: {
         ALLOWED_ORIGIN: z.string().url(),
-        ENV: z.union([
-            z.literal("development"),
-            z.literal("production")
-        ]),
+        ENV: z.union([z.literal("development"), z.literal("production")]),
         OPENAI_API_KEY: z.string().min(1),
     },
 
