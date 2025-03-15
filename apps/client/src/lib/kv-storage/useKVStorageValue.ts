@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { tryCatch } from "@convo-ai/shared";
 import { KVStorageKey, KVStorageValue } from "@/types";
 import KVStorage from "./KVStorage";
 
@@ -15,11 +14,9 @@ function useKVStorageValue<T extends KVStorageKey>(
     useEffect(() => {
         let isMounted = true;
 
-        void tryCatch(async () => {
-            const result = await tryCatch(KVStorage.getItem(key));
-
-            if (isMounted && result.isOk() && result.value) {
-                setState(result.value);
+        KVStorage.getItem(key).then((value) => {
+            if (isMounted && value) {
+                setState(value);
             }
         });
 
