@@ -11,6 +11,9 @@ importers:
       concurrently:
         specifier: ^9.1.2
         version: 9.1.2
+      prettier:
+        specifier: ^3.4.2
+        version: 3.5.3
 
   apps/client:
     dependencies:
@@ -175,6 +178,9 @@ importers:
         specifier: ^3.24.1
         version: 3.24.2
     devDependencies:
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^5.2.2
+        version: 5.2.2(prettier@3.5.3)
       '@types/cors':
         specifier: ^2.8.17
         version: 2.8.17
@@ -193,6 +199,9 @@ importers:
       esbuild:
         specifier: ^0.25.0
         version: 0.25.1
+      prettier:
+        specifier: ^3.4.2
+        version: 3.5.3
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -212,6 +221,9 @@ importers:
         specifier: ^3.24.1
         version: 3.24.2
     devDependencies:
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^5.2.2
+        version: 5.2.2(prettier@3.5.3)
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -221,6 +233,9 @@ importers:
       esbuild-plugin-lodash:
         specifier: ^1.2.0
         version: 1.2.0
+      prettier:
+        specifier: ^3.4.2
+        version: 3.5.3
       rimraf:
         specifier: ~6.0.0
         version: 6.0.1
