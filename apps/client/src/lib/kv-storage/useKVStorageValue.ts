@@ -16,10 +16,10 @@ function useKVStorageValue<T extends KVStorageKey>(
         let isMounted = true;
 
         void tryCatch(async () => {
-            const { data } = await tryCatch(KVStorage.getItem(key));
+            const result = await tryCatch(KVStorage.getItem(key));
 
-            if (data && isMounted) {
-                setState(data);
+            if (isMounted && result.isOk() && result.value) {
+                setState(result.value);
             }
         });
 

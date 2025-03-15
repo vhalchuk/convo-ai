@@ -1,23 +1,19 @@
+import { Result, err, ok } from "neverthrow";
 import { invariant } from "./invariant";
 
-type SuccessResult<T> = {
-    data: T;
-    error: null;
-};
-
-type ErrorResult = {
-    data: null;
-    error: Error;
-};
-
 /**
- * Executes a function or promise and returns a result object containing either the data or an error message.
- * This simplifies error handling and avoids try-catch blocks in the calling code, making asynchronous code cleaner.
- * Supports both synchronous and asynchronous functions, as well as existing promises.
- * */
+ * Executes a function or promise and returns a neverthrow Result containing either the successful value or an error.
+ *
+ * This utility simplifies error handling by avoiding try/catch blocks in the calling code.
+ * It supports synchronous and asynchronous functions as well as existing promises.
+ *
+ * The returned Result is:
+ *   - Ok: with the value accessible via `.value`
+ *   - Err: with the error accessible via `.error`
+ */
 export async function tryCatch<T>(
     func: (() => T | Promise<T>) | Promise<T>
-): Promise<SuccessResult<T> | ErrorResult> {
+): Promise<Result<T, unknown>> {
     invariant(
         typeof func === "function" || func instanceof Promise,
         "Expected a function or a promise."
@@ -31,8 +27,8 @@ export async function tryCatch<T>(
             result = await Promise.resolve(func());
         }
 
-        return { data: result, error: null };
+        return ok(result);
     } catch (e: unknown) {
-        return { data: null, error: e as Error };
+        return err(e);
     }
 }

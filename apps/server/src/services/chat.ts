@@ -30,7 +30,7 @@ class Chat implements Service {
         this.isInitialized = true;
     }
 
-    public async createCompletion(params: ChatCompletionCreateParams) {
+    public createCompletion(params: ChatCompletionCreateParams) {
         invariant(
             this.isInitialized,
             `${this.name} must be initialized before use. Call initialize() first.`

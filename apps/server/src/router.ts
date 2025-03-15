@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { conversationReqBodySchema } from "@convo-ai/shared";
+import { conversationReqBodySchema, tryCatch } from "@convo-ai/shared";
 import { chat } from "@/services/chat";
+import { logger } from "@/services/logger";
 import { validate } from "@/utils/validate";
 
 const router = Router();
@@ -19,15 +20,11 @@ router.post("/conversation", async (req, res) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    try {
-        const stream = await chat.createCompletion({
-            model,
-            messages,
-        });
+    const result = await tryCatch(async () => {
+        const stream = await chat.createCompletion({ model, messages });
 
         for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content;
-
             if (typeof content !== "string") continue;
 
             const lines = content
@@ -36,10 +33,17 @@ router.post("/conversation", async (req, res) => {
                 .join("");
             res.write(`event: delta\n${lines}\n`);
         }
-    } finally {
-        res.write("data: [DONE]\n\n");
-        res.end();
+    });
+
+    if (result.isErr()) {
+        logger.log({
+            severity: logger.SEVERITIES.Error,
+            message: `Error during SSE streaming: ${result.error}`,
+        });
     }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
 });
 
 export default router;
