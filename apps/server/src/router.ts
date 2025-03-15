@@ -40,6 +40,7 @@ router.post("/conversation", async (req, res) => {
             severity: logger.SEVERITIES.Error,
             message: `Error during SSE streaming: ${result.error}`,
         });
+        res.write(`event: error\ndata: ${result.error}\n\n`);
     }
 
     res.write("data: [DONE]\n\n");
