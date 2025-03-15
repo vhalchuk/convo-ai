@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { tryCatch } from "@/lib/tryCatch.ts";
 import { KVStorageKey, KVStorageValue } from "@/types";
 import KVStorage from "./KVStorage";
-
-// adjust the import path as needed
 
 function useKVStorageValue<T extends KVStorageKey>(
     key: T,
@@ -15,13 +12,18 @@ function useKVStorageValue<T extends KVStorageKey>(
     useEffect(() => {
         let isMounted = true;
 
-        void tryCatch(async () => {
-            const { data } = await tryCatch(KVStorage.getItem(key));
-
-            if (data && isMounted) {
-                setState(data);
-            }
-        });
+        KVStorage.getItem(key)
+            .then((value) => {
+                if (isMounted && value) {
+                    setState(value);
+                }
+            })
+            .catch((error: unknown) => {
+                console.error(
+                    "Failed to retrieve a value from KVStorage",
+                    error
+                );
+            });
 
         return () => {
             isMounted = false;

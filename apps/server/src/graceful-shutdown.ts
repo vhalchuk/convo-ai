@@ -1,4 +1,5 @@
 import type { Server } from "node:http";
+import { tryCatch } from "@convo-ai/shared";
 import { cleanupServices } from "@/services";
 import { logger } from "@/services/logger";
 
@@ -15,35 +16,41 @@ const makeGracefulShutdown =
                     : `Server shutting down: ${reason}`,
         });
 
-        try {
-            await cleanupServices();
-            server.close((err) => {
-                if (err) {
-                    logger.log({
-                        severity: logger.SEVERITIES.Error,
-                        message: `Error during server close: ${err.message}`,
-                    });
-                    process.exit(1);
-                    return;
-                }
-                logger.log({
-                    severity: logger.SEVERITIES.Info,
-                    message: `Server has been successfully shut-down`,
-                });
-                process.exit();
+        const cleanupResult = await tryCatch(cleanupServices);
+        if (cleanupResult.isErr()) {
+            logger.log({
+                severity: logger.SEVERITIES.Error,
+                message: `Error during cleanup: ${String(cleanupResult.error)}`,
             });
-            setTimeout(() => {
-                logger.log({
-                    severity: logger.SEVERITIES.Error,
-                    message:
-                        "Server close timed out after 10 seconds, forcing exit",
-                });
-                process.exit(1);
-            }, 10_000);
-        } catch (ex) {
             process.exit(1);
         }
+
+        server.close((err) => {
+            if (err) {
+                logger.log({
+                    severity: logger.SEVERITIES.Error,
+                    message: `Error during server close: ${err.message}`,
+                });
+                process.exit(1);
+                return;
+            }
+            logger.log({
+                severity: logger.SEVERITIES.Info,
+                message: `Server has been successfully shut-down`,
+            });
+            process.exit();
+        });
+
+        setTimeout(() => {
+            logger.log({
+                severity: logger.SEVERITIES.Error,
+                message:
+                    "Server close timed out after 10 seconds, forcing exit",
+            });
+            process.exit(1);
+        }, 10_000);
     };
+
 const makeSignalShutdown =
     (gracefulShutdown: GracefulShutdown) => (signal: string) => () =>
         gracefulShutdown(`Received ${signal} signal, shutting down...`);

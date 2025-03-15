@@ -12,20 +12,23 @@
         "prettier:write": "prettier --write --ignore-path ../../.prettierignore --ignore-unknown .",
         "prettier:check": "prettier --check --ignore-path ../../.prettierignore --ignore-unknown .",
         "type-check": "tsc --noEmit",
-        "check": "pnpm run prettier:check && pnpm run type-check"
+        "test": "vitest run",
+        "check": "pnpm run prettier:check && pnpm run type-check && pnpm run test"
     },
     "dependencies": {
         "lodash-es": "^4.17.21",
+        "neverthrow": "^8.2.0",
         "zod": "^3.24.1"
     },
     "devDependencies": {
+        "@trivago/prettier-plugin-sort-imports": "^5.2.2",
         "@types/lodash-es": "^4.17.12",
         "esbuild": "^0.25.0",
         "esbuild-plugin-lodash": "^1.2.0",
+        "prettier": "^3.4.2",
         "rimraf": "~6.0.0",
         "tsx": "^4.19.3",
         "typescript": "^5.8.2",
-        "prettier": "^3.4.2",
-        "@trivago/prettier-plugin-sort-imports": "^5.2.2"
+        "vitest": "^3.0.6"
     }
 }

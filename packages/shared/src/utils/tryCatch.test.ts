@@ -5,19 +5,28 @@ describe("tryCatch", () => {
     it("should return data for a synchronous function", async () => {
         const syncFn = () => "sync result";
         const result = await tryCatch(syncFn);
-        expect(result).toEqual({ data: "sync result", error: null });
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe("sync result");
+        }
     });
 
     it("should return data for an asynchronous function", async () => {
         const asyncFn = () => Promise.resolve("async result");
         const result = await tryCatch(asyncFn);
-        expect(result).toEqual({ data: "async result", error: null });
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe("async result");
+        }
     });
 
     it("should return data for a promise", async () => {
         const promise = Promise.resolve("promise result");
         const result = await tryCatch(promise);
-        expect(result).toEqual({ data: "promise result", error: null });
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe("promise result");
+        }
     });
 
     it("should return an error object for a synchronous function that throws", async () => {
@@ -25,27 +34,31 @@ describe("tryCatch", () => {
             throw new Error("sync error");
         };
         const result = await tryCatch(syncFn);
-        expect(result.error).toBeInstanceOf(Error);
-        expect(result.error?.message).toBe("sync error");
-        expect(result.data).toBeNull();
+        expect(result.isErr()).toBe(true);
+        if (result.isErr()) {
+            expect(result.error).toBeInstanceOf(Error);
+            expect((result.error as Error).message).toBe("sync error");
+        }
     });
 
     it("should return an error object for an asynchronous function that rejects", async () => {
-        const asyncFn = () => {
-            return Promise.reject(new Error("async error"));
-        };
+        const asyncFn = () => Promise.reject(new Error("async error"));
         const result = await tryCatch(asyncFn);
-        expect(result.error).toBeInstanceOf(Error);
-        expect(result.error?.message).toBe("async error");
-        expect(result.data).toBeNull();
+        expect(result.isErr()).toBe(true);
+        if (result.isErr()) {
+            expect(result.error).toBeInstanceOf(Error);
+            expect((result.error as Error).message).toBe("async error");
+        }
     });
 
     it("should return an error object for a rejected promise", async () => {
         const promise = Promise.reject(new Error("promise error"));
         const result = await tryCatch(promise);
-        expect(result.error).toBeInstanceOf(Error);
-        expect(result.error?.message).toBe("promise error");
-        expect(result.data).toBeNull();
+        expect(result.isErr()).toBe(true);
+        if (result.isErr()) {
+            expect(result.error).toBeInstanceOf(Error);
+            expect((result.error as Error).message).toBe("promise error");
+        }
     });
 
     it("should throw an error for invalid input", async () => {
@@ -61,8 +74,10 @@ describe("tryCatch", () => {
                 resolve("thenable result"),
         };
         const promise = Promise.resolve(thenable);
-
         const result = await tryCatch(promise);
-        expect(result).toEqual({ data: "thenable result", error: null });
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe("thenable result");
+        }
     });
 });

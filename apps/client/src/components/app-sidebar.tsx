@@ -1,6 +1,7 @@
 import { type ComponentProps } from "react";
 import { X } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { invariant } from "@convo-ai/shared";
 import { NewConvoButton } from "@/components/new-convo-button";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -14,7 +15,6 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar";
-import invariant from "@/lib/invariant.ts";
 import KVStorage from "@/lib/kv-storage/KVStorage.ts";
 import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
 

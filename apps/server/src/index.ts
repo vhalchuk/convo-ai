@@ -1,4 +1,5 @@
 import express from "express";
+import { tryCatch } from "@convo-ai/shared";
 import { addGracefulShutdownListeners } from "@/graceful-shutdown";
 import { corsMiddleware } from "@/middleware/cors";
 import { requestErrorHandler } from "@/middleware/request-error-handler";
@@ -7,12 +8,11 @@ import { initializeServices } from "@/services";
 import { logger } from "@/services/logger";
 
 const main = async () => {
-    try {
-        await initializeServices();
-    } catch (error) {
+    const initResult = await tryCatch(initializeServices);
+    if (initResult.isErr()) {
         logger.log({
             severity: logger.SEVERITIES.Error,
-            message: `Application failed to start due to service initialization failure: ${error}`,
+            message: `Application failed to start due to service initialization failure: ${initResult.error}`,
         });
         process.exit(1);
     }

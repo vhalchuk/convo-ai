@@ -22,7 +22,7 @@ export class InvariantError extends Error {
  *
  * @throws {InvariantError} if condition is falsy
  */
-export default function invariant(
+export function invariant(
     condition: unknown,
     message: string
 ): asserts condition {

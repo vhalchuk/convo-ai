@@ -1,5 +1,5 @@
 import { del, get, set, update } from "idb-keyval";
-import invariant from "@/lib/invariant.ts";
+import { invariant } from "@convo-ai/shared";
 import { KVStorageKey, KVStorageValue } from "@/types";
 
 type Updater<T> = (oldValue: T | undefined) => T;

@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import { tryCatch } from "@convo-ai/shared";
 import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
 import KVStorage from "@/lib/kv-storage/KVStorage";
-import { tryCatch } from "@/lib/tryCatch.ts";
 import { Conversation } from "@/types";
 
 export function EmptyConversationView() {

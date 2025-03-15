@@ -1,7 +1,7 @@
 import { ConversationReqBody } from "@convo-ai/shared";
+import { invariant } from "@convo-ai/shared";
 import { env } from "@/env";
 import { PostEventSource } from "@/lib/PostEventSource.ts";
-import invariant from "@/lib/invariant.ts";
 import KVStorage from "@/lib/kv-storage/KVStorage.ts";
 import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
 import { ConversationStorageKey } from "@/types";

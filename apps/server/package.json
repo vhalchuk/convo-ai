@@ -20,20 +20,21 @@
         "dotenv": "^16.4.7",
         "express": "^5.0.1",
         "lodash-es": "^4.17.21",
+        "neverthrow": "^8.2.0",
         "openai": "^4.86.2",
         "zod": "^3.24.1"
     },
     "devDependencies": {
+        "@trivago/prettier-plugin-sort-imports": "^5.2.2",
         "@types/cors": "^2.8.17",
         "@types/express": "^5.0.0",
         "@types/lodash-es": "^4.17.12",
         "@types/node": "~22.13.0",
         "cross-env": "^7.0.3",
         "esbuild": "^0.25.0",
+        "prettier": "^3.4.2",
         "rimraf": "^6.0.1",
         "tsx": "^4.19.3",
-        "typescript": "^5.8.2",
-        "prettier": "^3.4.2",
-        "@trivago/prettier-plugin-sort-imports": "^5.2.2"
+        "typescript": "^5.8.2"
     }
 }
