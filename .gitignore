@@ -1,2 +1,19 @@
-.idea
+node_modules
+dist
 .env
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs
+*.log
+pnpm-debug.log*

@@ -1,0 +1,24 @@
+{
+    "extends": "../../tsconfig.json",
+
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"],
+            /* Resolve to packages' source code: */
+            "@convo-ai/*": ["../../packages/*/src/index.ts"]
+        },
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+        "useDefineForClassFields": true,
+        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+
+        /* Bundler mode */
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "jsx": "react-jsx"
+    },
+
+    "include": ["src"]
+}
