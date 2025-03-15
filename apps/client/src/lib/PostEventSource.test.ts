@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import invariant from "@/lib/invariant.ts";
+import { invariant } from "@convo-ai/shared";
 import { PostEventSource } from "./PostEventSource";
 
 // Polyfill TextDecoderStream if not available (Node environment)

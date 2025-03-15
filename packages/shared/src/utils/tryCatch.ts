@@ -1,4 +1,4 @@
-import invariant from "@/lib/invariant.ts";
+import { invariant } from "./invariant";
 
 type SuccessResult<T> = {
     data: T;

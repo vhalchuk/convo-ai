@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { tryCatch } from "@/lib/tryCatch.ts";
+import { tryCatch } from "@convo-ai/shared";
 import { KVStorageKey, KVStorageValue } from "@/types";
 import KVStorage from "./KVStorage";
 
