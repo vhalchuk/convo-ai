@@ -1,6 +1,5 @@
-import { KVStoreKey, KVStoreValue } from "@/types";
-
-type Updater<T> = (oldValue: T | undefined) => T;
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+import { invariant } from "@convo-ai/shared";
 
 type Store = {
     get<T = unknown>(key: string): Promise<T | undefined>;
@@ -12,6 +11,8 @@ type Store = {
     del(key: string): Promise<void>;
 };
 
+type Value = Exclude<unknown, undefined>;
+
 /**
  * KVStore is a singleton that abstracts an asynchronous key-value store.
  * It maintains an in-memory cache with debounced deletion and supports subscriptions.
@@ -21,20 +22,13 @@ export default class KVStore {
     // @ts-expect-error Store is actually being properly initialized in the constructor
     private store: Store;
     // Map a key to its subscriber callbacks
-    private subscriptions = new Map<
-        KVStoreKey,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ((value: any) => void)[]
-    >();
+    private subscriptions = new Map<string, ((value: unknown) => void)[]>();
     // In-memory cache for sync snapshots.
-    private cache = new Map<KVStoreKey, any>();
+    private cache = new Map<string, unknown>();
     // Track active subscriptions per key.
-    private subscriptionCounts = new Map<KVStoreKey, number>();
+    private subscriptionCounts = new Map<string, number>();
     // Map to store pending deletion timers.
-    private deletionTimers = new Map<
-        KVStoreKey,
-        ReturnType<typeof setTimeout>
-    >();
+    private deletionTimers = new Map<string, ReturnType<typeof setTimeout>>();
     // Debounce delay in milliseconds.
     private deletionDelay = 500;
 
@@ -49,12 +43,59 @@ export default class KVStore {
     }
 
     /**
+     * Schedules debounced cache deletion for a key.
+     * If no new subscriptions occur within the delay, the cache is removed.
+     * @param key The key.
+     */
+    private scheduleCacheDeletion(key: string): void {
+        const timer = setTimeout(() => {
+            if (!this.subscriptionCounts.has(key)) {
+                this.cache.delete(key);
+            }
+            this.deletionTimers.delete(key);
+        }, this.deletionDelay);
+        this.deletionTimers.set(key, timer);
+    }
+
+    /**
+     * Cancels any scheduled cache deletion for a key.
+     * @param key The key.
+     */
+    private cancelCacheDeletion(key: string): void {
+        if (this.deletionTimers.has(key)) {
+            clearTimeout(this.deletionTimers.get(key));
+            this.deletionTimers.delete(key);
+        }
+    }
+
+    /**
+     * Notifies all subscribers of a key about its new value.
+     * @param key The key.
+     * @param value The new value.
+     */
+    private notifySubscribers(key: string, value: Value): void {
+        const subs = this.subscriptions.get(key);
+        if (subs) {
+            subs.forEach((cb) => {
+                try {
+                    cb(value);
+                } catch (err) {
+                    console.error(
+                        `Subscriber error for key ${String(key)}:`,
+                        err
+                    );
+                }
+            });
+        }
+    }
+
+    /**
      * Initializes the KVStore singleton with the provided store.
-     * Subsequent calls will return the same instance.
+     * Subsequent calls return the same instance.
      * @param store The underlying store implementation.
      * @returns The KVStore instance.
      */
-    static getInstance(store: Store) {
+    public static initialize(store: Store) {
         if (!KVStore.instance) {
             KVStore.instance = new KVStore(store);
         }
@@ -62,23 +103,36 @@ export default class KVStore {
     }
 
     /**
-     * Initializes a key with an initial value if not present,
-     * and loads the actual value asynchronously.
-     * @param key The key to initialize.
-     * @param initialValue The initial value if the key is not in the cache.
+     * Returns the KVStore instance.
+     * @throws if KVStore has not been initialized.
      */
-    initKey<T extends KVStoreKey>(key: T, initialValue: KVStoreValue<T>) {
+    public static getInstance(): KVStore {
+        if (!KVStore.instance) {
+            throw new Error(
+                "KVStore not initialized. Call KVStore.initialize() first."
+            );
+        }
+        return KVStore.instance;
+    }
+
+    /**
+     * Initializes a key with an initial value if not already cached,
+     * then asynchronously loads the actual value from the store.
+     * @param key The key to initialize.
+     * @param initialValue The fallback value.
+     */
+    public initKey(key: string, initialValue: unknown): void {
         if (!this.cache.has(key)) {
             this.cache.set(key, initialValue);
             this.store
-                .get(key)
+                .get(String(key))
                 .then((storedValue) => {
                     if (storedValue !== undefined) {
                         this.cache.set(key, storedValue);
                         this.notifySubscribers(key, storedValue);
                     }
                 })
-                .catch((error) => {
+                .catch((error: unknown) => {
                     console.error(
                         "Error loading initial value for key:",
                         key,
@@ -89,35 +143,15 @@ export default class KVStore {
     }
 
     /**
-     * Sets the value for a given key.
-     * @param key The key to set.
-     * @param value The value to set.
-     * @returns Promise resolving to true on success.
+     * Retrieves the value for the specified key.
+     * @param key The key.
+     * @returns The value or undefined.
      */
-    async setItem<T extends KVStoreKey>(key: T, value: KVStoreValue<T>) {
-        try {
-            await this.store.set(key, value);
-            this.cache.set(key, value);
-            this.notifySubscribers(key, value);
-            return true;
-        } catch (error) {
-            console.error("Error setting item:", error);
-            throw error;
-        }
-    }
-
-    /**
-     * Retrieves the value for a given key.
-     * @param key The key to retrieve.
-     * @returns Promise resolving to the value or undefined.
-     */
-    async getItem<T extends KVStoreKey>(
-        key: T
-    ): Promise<KVStoreValue<T> | undefined> {
+    public async getItem(key: string): Promise<Value | undefined> {
         try {
             let value = this.cache.get(key);
             if (value === undefined) {
-                value = await this.store.get(key);
+                value = await this.store.get(String(key));
                 this.cache.set(key, value);
             }
             return value;
@@ -128,24 +162,38 @@ export default class KVStore {
     }
 
     /**
-     * Updates the value for a given key using an updater function.
-     * @param key The key to update.
-     * @param updater Function that receives the old value and returns the new value.
+     * Sets a value for the specified key.
+     * @param key The key.
+     * @param value The value.
+     * @returns Resolves to true on success.
      */
-    async updateItem<T extends KVStoreKey>(
-        key: T,
-        updater: Updater<KVStoreValue<T>>
-    ) {
+    public async setItem(key: string, value: unknown) {
         try {
-            await this.store.update<KVStoreValue<T> | undefined>(
-                key,
-                (oldValue) => {
-                    const newValue = updater(oldValue);
-                    this.cache.set(key, newValue);
-                    this.notifySubscribers(key, newValue);
-                    return newValue;
-                }
-            );
+            await this.store.set(String(key), value);
+            this.cache.set(key, value);
+            this.notifySubscribers(key, value);
+        } catch (error) {
+            console.error("Error setting item:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates the value for a key using an updater function.
+     * @param key The key.
+     * @param updater Function that transforms the old value.
+     */
+    public async updateItem(
+        key: string,
+        updater: (oldValue: unknown) => unknown
+    ): Promise<void> {
+        try {
+            await this.store.update(String(key), (oldValue: unknown) => {
+                const newValue = updater(oldValue);
+                this.cache.set(key, newValue);
+                this.notifySubscribers(key, newValue);
+                return newValue;
+            });
         } catch (error) {
             console.error("Error updating item:", error);
             throw error;
@@ -153,12 +201,12 @@ export default class KVStore {
     }
 
     /**
-     * Deletes the value for a given key.
-     * @param key The key to delete.
+     * Deletes the specified key.
+     * @param key The key.
      */
-    async deleteItem(key: KVStoreKey) {
+    public async deleteItem(key: string): Promise<void> {
         try {
-            await this.store.del(key);
+            await this.store.del(String(key));
             this.cache.delete(key);
             this.notifySubscribers(key, undefined);
         } catch (error) {
@@ -168,24 +216,35 @@ export default class KVStore {
     }
 
     /**
-     * Subscribes to changes for a given key.
-     * @param key The key to subscribe to.
-     * @param callback Callback invoked when the key's value changes.
-     * @returns Unsubscribe function.
+     * Returns a synchronous snapshot of the value for a given key.
+     * @param key The key.
+     * @returns The current value or undefined.
      */
-    subscribe<T extends KVStoreKey>(
-        key: T,
-        callback: (value: any) => void
+    public getSnapshot(key: string): Value | undefined {
+        return this.cache.get(key);
+    }
+
+    /**
+     * Subscribes to changes for the specified key.
+     * @param key The key.
+     * @param callback Callback invoked with the updated value.
+     * @returns An unsubscribe function.
+     */
+    public subscribe(
+        key: string,
+        callback: (value: Value | undefined) => void
     ): () => void {
         if (!this.subscriptions.has(key)) {
             this.subscriptions.set(key, []);
         }
-        // Cancel pending cache deletion if it exists.
+        // Cancel pending cache deletion if any.
         this.cancelCacheDeletion(key);
-        const subs = this.subscriptions.get(key)!;
-        subs.push(callback);
-        // Increment subscription count.
-        const count = this.subscriptionCounts.get(key) || 0;
+        const subs = this.subscriptions.get(key);
+
+        invariant(subs, "Subscribers must be defined");
+
+        subs.push(callback as (value: unknown) => void);
+        const count = this.subscriptionCounts.get(key) ?? 0;
         this.subscriptionCounts.set(key, count + 1);
 
         return () => {
@@ -196,70 +255,13 @@ export default class KVStore {
                     subs.filter((cb) => cb !== callback)
                 );
             }
-            const currentCount = this.subscriptionCounts.get(key) || 1;
+            const currentCount = this.subscriptionCounts.get(key) ?? 1;
             if (currentCount <= 1) {
                 this.subscriptionCounts.delete(key);
-                // Schedule debounced deletion of cache.
                 this.scheduleCacheDeletion(key);
             } else {
                 this.subscriptionCounts.set(key, currentCount - 1);
             }
         };
-    }
-
-    /**
-     * Returns a synchronous snapshot of the current value for a given key.
-     * @param key The key to retrieve.
-     * @returns The current value or undefined.
-     */
-    public getSnapshot<T extends KVStoreKey>(
-        key: T
-    ): KVStoreValue<T> | undefined {
-        return this.cache.get(key);
-    }
-
-    /**
-     * Schedules a debounced deletion of the cache for a key.
-     * If no new subscriptions are added within the delay, the cache is deleted.
-     * @param key The key for which to schedule deletion.
-     */
-    private scheduleCacheDeletion(key: KVStoreKey): void {
-        const timer = setTimeout(() => {
-            if (!this.subscriptionCounts.has(key)) {
-                console.log(`Deleting cache for key: ${key}`);
-                this.cache.delete(key);
-            }
-            this.deletionTimers.delete(key);
-        }, this.deletionDelay);
-        this.deletionTimers.set(key, timer);
-    }
-
-    /**
-     * Cancels any pending cache deletion for a given key.
-     * @param key The key for which to cancel deletion.
-     */
-    private cancelCacheDeletion(key: KVStoreKey): void {
-        if (this.deletionTimers.has(key)) {
-            clearTimeout(this.deletionTimers.get(key));
-            this.deletionTimers.delete(key);
-        }
-    }
-
-    /**
-     * Notifies all subscribers of a key about a value change.
-     * @param key The key that has changed.
-     * @param value The new value.
-     */
-    private notifySubscribers(key: KVStoreKey, value: unknown) {
-        const subs = this.subscriptions.get(key);
-        if (subs) {
-            subs.forEach((cb) => {
-                try {
-                    cb(value);
-                } catch (err) {
-                    console.error(`Subscriber error for key ${key}:`, err);
-                }
-            });
-        }
     }
 }
