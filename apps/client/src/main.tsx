@@ -8,7 +8,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import "@/index.css";
 
 scan({
-    enabled: true,
+    enabled: import.meta.env.DEV,
 });
 
 const queryClient = new QueryClient();
