@@ -2,18 +2,17 @@
 
 Convo AI is an open-source project that lets you run a custom ChatGPT locally using own OpenAI API key. It consists of two main parts:
 
-- **Python Server:** Handles API interactions and backend logic.
+- **NodeJS Server:** Handles API interactions and backend logic.
 - **React Client:** Provides a chat interface for interacting with the server.
 
 ## Features
 
-- **Local Deployment:** Run the entire setup using Docker.
 - **Live Reloading:** Automatically reloads code on changes.
 - **Offline Data Storage:** Conversations are stored in the browser using IndexedDB.
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) (includes Docker Compose)
+- [pnpm](https://pnpm.io/installation)
 
 ## Setup Instructions
 
@@ -39,10 +38,8 @@ Convo AI is an open-source project that lets you run a custom ChatGPT locally us
 - Run the following command from the project root:
 
     ```bash
-    docker-compose up
+    pnpm run dev
     ```
-
-    This builds and starts both the server and client containers. Logs for each service will be clearly labeled.
 
 ## License
 
