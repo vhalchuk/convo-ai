@@ -1,15 +1,10 @@
-import { ConversationReqBody } from "@convo-ai/shared";
+import { ConversationReqBody, ROLES } from "@convo-ai/shared";
 import { invariant } from "@convo-ai/shared";
 import { env } from "@/env";
 import { PostEventSource } from "@/lib/PostEventSource.ts";
-import { kvStore } from "@/lib/kv-store";
-import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
-import { ConversationStoreKey } from "@/types";
+import { db } from "@/lib/db.ts";
 
-export function chat(
-    conversationStorageKey: ConversationStoreKey,
-    body: ConversationReqBody
-) {
+export async function chat(conversationId: string, body: ConversationReqBody) {
     const eventSource = new PostEventSource(
         `${env.VITE_API_DOMAIN}/conversation`,
         {
@@ -20,28 +15,39 @@ export function chat(
         }
     );
 
-    eventSource.addEventListener("delta", (event) => {
-        void kvStore.updateItem(conversationStorageKey, (prevConversation) => {
-            invariant(
-                prevConversation,
-                "Previous conversation must be defined"
-            );
-            invariant(
-                event instanceof MessageEvent,
-                "Event must be a MessageEvent"
-            );
-            invariant(
-                typeof event.data === "string",
-                "Event data must be a string"
-            );
+    let buffer = "";
+    const messageId = crypto.randomUUID();
 
-            return {
-                ...prevConversation,
-                messages: upsertAssistantResponseMessage(
-                    prevConversation.messages,
-                    event.data
-                ),
-            };
+    let assistantMessageId: string;
+
+    await db.transaction("rw", db.conversations, db.messages, async () => {
+        const now = Date.now();
+        assistantMessageId = await db.messages.add({
+            id: messageId,
+            conversationId,
+            role: ROLES.ASSISTANT,
+            content: buffer,
+            createdAt: Date.now(),
+        });
+        await db.conversations.update(conversationId, {
+            lastMessageAt: now,
+        });
+    });
+
+    eventSource.addEventListener("delta", (event) => {
+        invariant(
+            event instanceof MessageEvent,
+            "Event must be a MessageEvent"
+        );
+        invariant(
+            typeof event.data === "string",
+            "Event data must be a string"
+        );
+
+        buffer += event.data;
+        void db.messages.update(assistantMessageId, {
+            content: buffer,
+            updatedAt: Date.now(),
         });
     });
 }

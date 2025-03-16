@@ -1,7 +1,8 @@
 import { type ComponentProps } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { X } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { invariant } from "@convo-ai/shared";
+import { tryCatch } from "@convo-ai/shared";
 import { NewConvoButton } from "@/components/new-convo-button";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -15,22 +16,31 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar";
-import { kvStore, useKVStoreValue } from "@/lib/kv-store";
+import { db } from "@/lib/db.ts";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     const navigate = useNavigate();
 
-    const conversationIds = useKVStoreValue("conversation-list", []);
+    const conversations = useLiveQuery(
+        () => db.conversations.orderBy("lastMessageAt").reverse().toArray(),
+        [],
+        []
+    );
+
     const { conversationId } = useParams<{ conversationId?: string }>();
 
-    const handleDelete = (id: string) => {
-        void kvStore.updateItem("conversation-list", (conversationList) => {
-            invariant(conversationList, "Conversation list must be defined");
-            return conversationList.filter((item) => item.id !== id);
-        });
-        void kvStore.deleteItem(`conversation-${id}`);
+    const handleDelete = (conversationIdToDelete: string) => {
+        void tryCatch(
+            db.transaction("rw", db.conversations, db.messages, async () => {
+                await db.messages
+                    .where("conversationId")
+                    .equals(conversationIdToDelete)
+                    .delete();
+                await db.conversations.delete(conversationIdToDelete);
+            })
+        );
 
-        if (conversationId === id) {
+        if (conversationId === conversationIdToDelete) {
             void navigate("/");
         }
     };
@@ -47,7 +57,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {conversationIds.map((item) => (
+                            {conversations.map((item) => (
                                 <SidebarMenuItem
                                     key={item.id}
                                     className="group/menu-item"

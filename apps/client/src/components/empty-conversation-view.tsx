@@ -1,44 +1,42 @@
 import { useNavigate } from "react-router-dom";
-import { tryCatch } from "@convo-ai/shared";
+import { ROLES } from "@convo-ai/shared";
 import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
-import { kvStore } from "@/lib/kv-store";
-import { Conversation } from "@/types";
+import { db } from "@/lib/db.ts";
 
 export function EmptyConversationView() {
     const navigate = useNavigate();
 
     const handleSubmit: OnSubmit = async ({ content, model }) => {
-        const newId = crypto.randomUUID();
-        const newConversationId = `conversation-${newId}` as const;
-        const newTitle =
+        const conversationId = crypto.randomUUID();
+        const messageId = crypto.randomUUID();
+
+        const title =
             content.length > 32 ? content.slice(0, 32) + "..." : content;
 
-        const newConv: Conversation = {
-            id: newId,
-            title: newTitle,
-            messages: [{ role: "user", content }],
-        };
+        await db.transaction("rw", db.conversations, db.messages, async () => {
+            const now = Date.now();
+            await db.conversations.add({
+                id: conversationId,
+                title,
+                createdAt: now,
+                lastMessageAt: now,
+            });
+            await db.messages.add({
+                id: messageId,
+                conversationId,
+                content,
+                createdAt: now,
+                role: ROLES.USER,
+            });
+        });
 
-        await tryCatch(
-            Promise.all([
-                kvStore.setItem(newConversationId, newConv),
-                kvStore.updateItem("conversation-list", (oldValue = []) => [
-                    {
-                        id: newConv.id,
-                        title: newConv.title,
-                    },
-                    ...oldValue,
-                ]),
-            ])
-        );
-
-        chat(newConversationId, {
-            messages: newConv.messages,
+        void chat(conversationId, {
+            messages: [{ role: ROLES.USER, content }],
             model,
         });
 
-        void navigate(`/${newId}`, { replace: true });
+        void navigate(`/${conversationId}`, { replace: true });
     };
 
     return (
