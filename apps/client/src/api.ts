@@ -2,12 +2,12 @@ import { ConversationReqBody } from "@convo-ai/shared";
 import { invariant } from "@convo-ai/shared";
 import { env } from "@/env";
 import { PostEventSource } from "@/lib/PostEventSource.ts";
-import KVStorage from "@/lib/kv-storage/KVStorage.ts";
+import { kvStore } from "@/lib/kv-store";
 import { upsertAssistantResponseMessage } from "@/lib/upsertAssistantResponseMessage.ts";
-import { ConversationStorageKey } from "@/types";
+import { ConversationStoreKey } from "@/types";
 
 export function chat(
-    conversationStorageKey: ConversationStorageKey,
+    conversationStorageKey: ConversationStoreKey,
     body: ConversationReqBody
 ) {
     const eventSource = new PostEventSource(
@@ -21,30 +21,27 @@ export function chat(
     );
 
     eventSource.addEventListener("delta", (event) => {
-        void KVStorage.updateItem(
-            conversationStorageKey,
-            (prevConversation) => {
-                invariant(
-                    prevConversation,
-                    "Previous conversation must be defined"
-                );
-                invariant(
-                    event instanceof MessageEvent,
-                    "Event must be a MessageEvent"
-                );
-                invariant(
-                    typeof event.data === "string",
-                    "Event data must be a string"
-                );
+        void kvStore.updateItem(conversationStorageKey, (prevConversation) => {
+            invariant(
+                prevConversation,
+                "Previous conversation must be defined"
+            );
+            invariant(
+                event instanceof MessageEvent,
+                "Event must be a MessageEvent"
+            );
+            invariant(
+                typeof event.data === "string",
+                "Event data must be a string"
+            );
 
-                return {
-                    ...prevConversation,
-                    messages: upsertAssistantResponseMessage(
-                        prevConversation.messages,
-                        event.data
-                    ),
-                };
-            }
-        );
+            return {
+                ...prevConversation,
+                messages: upsertAssistantResponseMessage(
+                    prevConversation.messages,
+                    event.data
+                ),
+            };
+        });
     });
 }

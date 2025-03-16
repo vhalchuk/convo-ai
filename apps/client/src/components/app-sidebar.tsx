@@ -15,21 +15,20 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar";
-import KVStorage from "@/lib/kv-storage/KVStorage.ts";
-import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
+import { kvStore, useKVStoreValue } from "@/lib/kv-store";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     const navigate = useNavigate();
 
-    const conversationIds = useKVStorageValue("conversation-list", []);
+    const conversationIds = useKVStoreValue("conversation-list", []);
     const { conversationId } = useParams<{ conversationId?: string }>();
 
     const handleDelete = (id: string) => {
-        void KVStorage.updateItem("conversation-list", (conversationList) => {
+        void kvStore.updateItem("conversation-list", (conversationList) => {
             invariant(conversationList, "Conversation list must be defined");
             return conversationList.filter((item) => item.id !== id);
         });
-        void KVStorage.deleteItem(`conversation-${id}`);
+        void kvStore.deleteItem(`conversation-${id}`);
 
         if (conversationId === id) {
             void navigate("/");
