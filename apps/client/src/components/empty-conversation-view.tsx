@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { tryCatch } from "@convo-ai/shared";
 import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
-import KVStorage from "@/lib/kv-storage/KVStorage";
+import { kvStore } from "@/lib/kv-store";
 import { Conversation } from "@/types";
 
 export function EmptyConversationView() {
@@ -22,8 +22,8 @@ export function EmptyConversationView() {
 
         await tryCatch(
             Promise.all([
-                KVStorage.setItem(newConversationId, newConv),
-                KVStorage.updateItem("conversation-list", (oldValue = []) => [
+                kvStore.setItem(newConversationId, newConv),
+                kvStore.updateItem("conversation-list", (oldValue = []) => [
                     {
                         id: newConv.id,
                         title: newConv.title,

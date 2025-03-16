@@ -4,8 +4,7 @@ import { invariant } from "@convo-ai/shared";
 import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
 import { Messages } from "@/components/messages";
-import KVStorage from "@/lib/kv-storage/KVStorage";
-import useKVStorageValue from "@/lib/kv-storage/useKVStorageValue";
+import { kvStore, useKVStoreValue } from "@/lib/kv-store";
 import { Conversation } from "@/types";
 
 export function ConversationView() {
@@ -15,7 +14,7 @@ export function ConversationView() {
 
     const conversationStorageKey = `conversation-${conversationId}` as const;
 
-    const conversation = useKVStorageValue(
+    const conversation = useKVStoreValue(
         conversationStorageKey,
         conversationId
             ? { id: conversationId, title: "", messages: [] }
@@ -23,6 +22,8 @@ export function ConversationView() {
     );
 
     const handleSubmit: OnSubmit = async ({ content, model }) => {
+        invariant(conversation, "Conversation must be defined");
+
         const newMessages: Message[] = [
             ...conversation.messages,
             { role: "user", content },
@@ -31,7 +32,7 @@ export function ConversationView() {
             ...conversation,
             messages: newMessages,
         };
-        await KVStorage.setItem(conversationStorageKey, updatedConv);
+        await kvStore.setItem(conversationStorageKey, updatedConv);
         chat(conversationStorageKey, {
             messages: newMessages,
             model,
