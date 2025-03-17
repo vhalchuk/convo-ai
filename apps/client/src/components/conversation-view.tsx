@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ROLES, invariant } from "@convo-ai/shared";
 import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
@@ -7,9 +8,16 @@ import { Messages } from "@/components/messages";
 import { db } from "@/lib/db.ts";
 
 export function ConversationView() {
+    const navigate = useNavigate();
     const { conversationId } = useParams<{ conversationId?: string }>();
 
     invariant(conversationId, "conversationId must be defined");
+
+    useEffect(() => {
+        db.conversations.get(conversationId).then((conversation) => {
+            if (!conversation) navigate("/", { replace: true });
+        });
+    }, [conversationId]);
 
     const messages = useLiveQuery(
         () =>
