@@ -64,7 +64,7 @@ describe("tryCatch", () => {
     it("should throw an error for invalid input", async () => {
         // @ts-expect-error deliberately passing a wrong value
         await expect(tryCatch("not a function")).rejects.toThrowError(
-            "Expected a function or a promise."
+            "Expected a function or a promise-like object (thenable)."
         );
     });
 
