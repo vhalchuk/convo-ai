@@ -15,8 +15,11 @@ export async function tryCatch<T>(
     func: (() => T | Promise<T>) | Promise<T>
 ): Promise<Result<T, unknown>> {
     invariant(
-        typeof func === "function" || func instanceof Promise,
-        "Expected a function or a promise."
+        typeof func === "function" ||
+            (func !== null &&
+                typeof func === "object" &&
+                typeof func.then === "function"),
+        "Expected a function or a promise-like object (thenable)."
     );
 
     try {
