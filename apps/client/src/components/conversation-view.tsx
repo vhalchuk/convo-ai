@@ -14,10 +14,10 @@ export function ConversationView() {
     invariant(conversationId, "conversationId must be defined");
 
     useEffect(() => {
-        db.conversations.get(conversationId).then((conversation) => {
-            if (!conversation) navigate("/", { replace: true });
+        void db.conversations.get(conversationId).then((conversation) => {
+            if (!conversation) void navigate("/", { replace: true });
         });
-    }, [conversationId]);
+    }, [conversationId, navigate]);
 
     const messages = useLiveQuery(
         () =>
