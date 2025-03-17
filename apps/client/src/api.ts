@@ -27,7 +27,7 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
             conversationId,
             role: ROLES.ASSISTANT,
             content: buffer,
-            createdAt: Date.now(),
+            createdAt: now,
         });
         await db.conversations.update(conversationId, {
             lastMessageAt: now,
