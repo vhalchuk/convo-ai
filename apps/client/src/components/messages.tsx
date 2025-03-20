@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, useState } from "react";
+import { clsx } from "clsx";
 import { omit } from "lodash-es";
 import { Check, Copy } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
@@ -37,7 +38,23 @@ const Code: Component = ({ children, className }) => {
     };
 
     return (
-        <div className="group/code-block relative">
+        <div className="group/code-block relative mt-6 mb-6 overflow-visible">
+            <div className="flex h-9 items-center justify-between rounded-t-[5px] bg-gray-700 px-4 py-2 text-xs select-none">
+                {language}
+            </div>
+            <div className="sticky top-9">
+                <Button
+                    variant="link"
+                    size="icon"
+                    onClick={() => {
+                        void copyToClipboard();
+                    }}
+                    className="absolute right-0 bottom-0 h-9 group-hover/code-block:visible"
+                    aria-label="Copy code"
+                >
+                    {copied ? <Check /> : <Copy />}
+                </Button>
+            </div>
             <Highlight language={language} theme={themes.vsDark} code={code}>
                 {({
                     className,
@@ -46,7 +63,13 @@ const Code: Component = ({ children, className }) => {
                     getLineProps,
                     getTokenProps,
                 }) => (
-                    <pre className={className} style={style}>
+                    <pre
+                        className={clsx(
+                            "mt-0 mb-0 rounded-t-[0px] rounded-b-[5px]",
+                            className
+                        )}
+                        style={style}
+                    >
                         {tokens.map((line, i) => (
                             <div
                                 key={i}
@@ -66,17 +89,6 @@ const Code: Component = ({ children, className }) => {
                     </pre>
                 )}
             </Highlight>
-            <Button
-                variant="link"
-                size="icon"
-                onClick={() => {
-                    void copyToClipboard();
-                }}
-                className="invisible absolute top-2 right-2 group-hover/code-block:visible"
-                aria-label="Copy code"
-            >
-                {copied ? <Check /> : <Copy />}
-            </Button>
         </div>
     );
 };
