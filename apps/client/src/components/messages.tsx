@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, useState } from "react";
+import { clsx } from "clsx";
 import { omit } from "lodash-es";
 import { Check, Copy } from "lucide-react";
 import { Highlight, themes } from "prism-react-renderer";
@@ -17,8 +18,8 @@ type Component = React.ElementType<
 >;
 
 const Code: Component = ({ children, className }) => {
-    const language =
-        /language-(\w+)/.exec(className ?? "")?.[1] ?? "javascript";
+    const match = /language-(\w+)/.exec(className ?? "");
+    const language = match?.[1] ?? "javascript";
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const code = String(children).replace(/\n$/, "");
@@ -36,8 +37,28 @@ const Code: Component = ({ children, className }) => {
         }
     };
 
+    if (!match) {
+        return <code className={className}>{children}</code>;
+    }
+
     return (
-        <div className="group/code-block relative">
+        <span className="group/code-block relative mt-6 mb-6 block overflow-visible">
+            <span className="flex h-9 items-center justify-between rounded-t-[5px] bg-neutral-700 px-4 py-2 text-xs select-none">
+                {language}
+            </span>
+            <span className="sticky top-9 block">
+                <Button
+                    variant="link"
+                    size="icon"
+                    onClick={() => {
+                        void copyToClipboard();
+                    }}
+                    className="invisible absolute right-0 bottom-0 h-9 group-hover/code-block:visible"
+                    aria-label="Copy code"
+                >
+                    {copied ? <Check /> : <Copy />}
+                </Button>
+            </span>
             <Highlight language={language} theme={themes.vsDark} code={code}>
                 {({
                     className,
@@ -46,7 +67,13 @@ const Code: Component = ({ children, className }) => {
                     getLineProps,
                     getTokenProps,
                 }) => (
-                    <pre className={className} style={style}>
+                    <pre
+                        className={clsx(
+                            "mt-0 mb-0 rounded-t-[0px] rounded-b-[5px]",
+                            className
+                        )}
+                        style={style}
+                    >
                         {tokens.map((line, i) => (
                             <div
                                 key={i}
@@ -66,18 +93,7 @@ const Code: Component = ({ children, className }) => {
                     </pre>
                 )}
             </Highlight>
-            <Button
-                variant="link"
-                size="icon"
-                onClick={() => {
-                    void copyToClipboard();
-                }}
-                className="invisible absolute top-2 right-2 group-hover/code-block:visible"
-                aria-label="Copy code"
-            >
-                {copied ? <Check /> : <Copy />}
-            </Button>
-        </div>
+        </span>
     );
 };
 const Pre = ({ children }: PropsWithChildren) => <>{children}</>;

@@ -132,3 +132,17 @@
         @apply bg-background text-foreground;
     }
 }
+
+@layer components {
+    .prose code {
+        background-color: var(--color-neutral-700);
+        padding: 0.15rem 0.3rem;
+        border-radius: 0.25rem;
+        font-weight: 500 !important;
+    }
+
+    .prose code::before,
+    .prose code::after {
+        content: "" !important;
+    }
+}
