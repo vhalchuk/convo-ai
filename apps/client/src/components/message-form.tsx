@@ -1,6 +1,4 @@
-import { MODELS } from "@convo-ai/shared";
-import { Model } from "@convo-ai/shared";
-import { invariant } from "@convo-ai/shared";
+import { MODELS, Model, invariant } from "@convo-ai/shared";
 import {
     Select,
     SelectContent,
@@ -9,6 +7,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { usePreferredModelStore } from "@/store/preferred-model";
 
 export type OnSubmit = (data: {
     content: string;
@@ -20,6 +19,8 @@ type Props = {
 };
 
 export function MessageForm({ onSubmit }: Props) {
+    const { model: preferredModel, setModel } = usePreferredModelStore();
+
     return (
         <form
             onSubmit={(event) => {
@@ -55,7 +56,13 @@ export function MessageForm({ onSubmit }: Props) {
                         }
                     }}
                 />
-                <Select name="model" defaultValue={MODELS.GPT4oMini}>
+                <Select
+                    name="model"
+                    value={preferredModel}
+                    onValueChange={(value) => {
+                        setModel(value as Model);
+                    }}
+                >
                     <SelectTrigger className="w-[140px] shadow-none">
                         <SelectValue placeholder="Select a model" />
                     </SelectTrigger>
