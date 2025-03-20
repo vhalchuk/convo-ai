@@ -54,7 +54,7 @@ const Code: Component = ({ children, className }) => {
                     onClick={() => {
                         void copyToClipboard();
                     }}
-                    className="absolute right-0 bottom-0 h-9 group-hover/code-block:visible"
+                    className="invisible absolute right-0 bottom-0 h-9 group-hover/code-block:visible"
                     aria-label="Copy code"
                 >
                     {copied ? <Check /> : <Copy />}
