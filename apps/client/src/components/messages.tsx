@@ -18,8 +18,13 @@ type Component = React.ElementType<
 >;
 
 const Code: Component = ({ children, className }) => {
-    const language =
-        /language-(\w+)/.exec(className ?? "")?.[1] ?? "javascript";
+    const match = /language-(\w+)/.exec(className ?? "");
+
+    if (!match) {
+        return <code className={className}>{children}</code>;
+    }
+
+    const language = match[1] ?? "javascript";
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const code = String(children).replace(/\n$/, "");
@@ -38,11 +43,11 @@ const Code: Component = ({ children, className }) => {
     };
 
     return (
-        <div className="group/code-block relative mt-6 mb-6 overflow-visible">
-            <div className="flex h-9 items-center justify-between rounded-t-[5px] bg-gray-700 px-4 py-2 text-xs select-none">
+        <span className="group/code-block relative mt-6 mb-6 block overflow-visible">
+            <span className="flex h-9 items-center justify-between rounded-t-[5px] bg-neutral-700 px-4 py-2 text-xs select-none">
                 {language}
-            </div>
-            <div className="sticky top-9">
+            </span>
+            <span className="sticky top-9 block">
                 <Button
                     variant="link"
                     size="icon"
@@ -54,7 +59,7 @@ const Code: Component = ({ children, className }) => {
                 >
                     {copied ? <Check /> : <Copy />}
                 </Button>
-            </div>
+            </span>
             <Highlight language={language} theme={themes.vsDark} code={code}>
                 {({
                     className,
@@ -89,7 +94,7 @@ const Code: Component = ({ children, className }) => {
                     </pre>
                 )}
             </Highlight>
-        </div>
+        </span>
     );
 };
 const Pre = ({ children }: PropsWithChildren) => <>{children}</>;
