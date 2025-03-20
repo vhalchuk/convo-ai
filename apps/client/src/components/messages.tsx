@@ -19,12 +19,7 @@ type Component = React.ElementType<
 
 const Code: Component = ({ children, className }) => {
     const match = /language-(\w+)/.exec(className ?? "");
-
-    if (!match) {
-        return <code className={className}>{children}</code>;
-    }
-
-    const language = match[1] ?? "javascript";
+    const language = match?.[1] ?? "javascript";
 
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const code = String(children).replace(/\n$/, "");
@@ -41,6 +36,10 @@ const Code: Component = ({ children, className }) => {
             }, 2000);
         }
     };
+
+    if (!match) {
+        return <code className={className}>{children}</code>;
+    }
 
     return (
         <span className="group/code-block relative mt-6 mb-6 block overflow-visible">
