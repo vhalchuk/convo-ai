@@ -50,4 +50,43 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
             updatedAt: Date.now(),
         });
     });
+
+    // Handle conversation name event from the server
+    eventSource.addEventListener("conversation_name", (event) => {
+        invariant(
+            event instanceof MessageEvent,
+            "Event must be a MessageEvent"
+        );
+        invariant(
+            typeof event.data === "string",
+            "Event data must be a string"
+        );
+
+        // Update the conversation title with the AI-generated name
+        void db.conversations.update(conversationId, {
+            title: event.data,
+            updatedAt: Date.now(),
+        });
+    });
+
+    // Handle message completion
+    eventSource.addEventListener("message", (event) => {
+        invariant(
+            event instanceof MessageEvent,
+            "Event must be a MessageEvent"
+        );
+        invariant(
+            typeof event.data === "string",
+            "Event data must be a string"
+        );
+
+        if (event.data === "[DONE]") {
+            eventSource.close();
+        }
+    });
+
+    // Handle error events
+    eventSource.addEventListener("error", () => {
+        eventSource.close();
+    });
 }

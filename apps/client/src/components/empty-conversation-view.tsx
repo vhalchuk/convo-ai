@@ -11,14 +11,14 @@ export function EmptyConversationView() {
         const conversationId = crypto.randomUUID();
         const messageId = crypto.randomUUID();
 
-        const title =
-            content.length > 32 ? content.slice(0, 32) + "..." : content;
+        // Use a placeholder title initially (will be replaced by AI-generated title)
+        const placeholderTitle = "New conversation";
 
         await db.transaction("rw", db.conversations, db.messages, async () => {
             const now = Date.now();
             await db.conversations.add({
                 id: conversationId,
-                title,
+                title: placeholderTitle,
                 createdAt: now,
                 lastMessageAt: now,
             });
