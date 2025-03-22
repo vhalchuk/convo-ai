@@ -36,7 +36,7 @@ class Chat implements Service {
         this.isInitialized = true;
     }
 
-    public createCompletion(params: ChatCompletionCreateParams) {
+    private validateInitialization() {
         invariant(
             this.isInitialized,
             `${this.name} must be initialized before use. Call initialize() first.`
@@ -46,9 +46,15 @@ class Chat implements Service {
             "OpenAI client is not initialized. This should not happen if initialize() was called."
         );
 
+        return this.openaiClient;
+    }
+
+    public createCompletion(params: ChatCompletionCreateParams) {
+        const openaiClient = this.validateInitialization();
+
         const { model, messages } = params;
 
-        return this.openaiClient.chat.completions.create({
+        return openaiClient.chat.completions.create({
             messages,
             model,
             stream: true,
@@ -58,18 +64,11 @@ class Chat implements Service {
     public async generateConversationName(
         params: GenerateConversationNameParams
     ) {
-        invariant(
-            this.isInitialized,
-            `${this.name} must be initialized before use. Call initialize() first.`
-        );
-        invariant(
-            this.openaiClient,
-            "OpenAI client is not initialized. This should not happen if initialize() was called."
-        );
+        const openaiClient = this.validateInitialization();
 
         const { model, userMessage, assistantResponse } = params;
 
-        const completion = await this.openaiClient.chat.completions.create({
+        const completion = await openaiClient.chat.completions.create({
             messages: [
                 {
                     role: ROLES.SYSTEM,
