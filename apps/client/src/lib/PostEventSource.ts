@@ -1,4 +1,5 @@
 import { merge } from "lodash-es";
+import { type SSEEvent, SSE_EVENTS, sseEventsSchema } from "@convo-ai/shared";
 
 type PostEventSourceOptions = {
     headers?: HeadersInit;
@@ -7,7 +8,7 @@ type PostEventSourceOptions = {
 
 type ParsedEvent = {
     data: string;
-    event: string;
+    event: SSEEvent;
     id: string | null;
     retry: number | null;
 };
@@ -70,7 +71,7 @@ export class PostEventSource extends EventTarget {
 
                 let parsedEvent: ParsedEvent = {
                     data: "",
-                    event: "message",
+                    event: SSE_EVENTS.MESSAGE,
                     id: null,
                     retry: null,
                 };
@@ -96,7 +97,7 @@ export class PostEventSource extends EventTarget {
                         }
                         parsedEvent = {
                             data: "",
-                            event: "message",
+                            event: SSE_EVENTS.MESSAGE,
                             id: null,
                             retry: null,
                         };
@@ -120,7 +121,8 @@ export class PostEventSource extends EventTarget {
                                 parsedEvent.data += valueStr + "\n";
                                 break;
                             case "event":
-                                parsedEvent.event = valueStr;
+                                parsedEvent.event =
+                                    sseEventsSchema.parse(valueStr);
                                 break;
                             case "id":
                                 parsedEvent.id = valueStr;
@@ -141,6 +143,16 @@ export class PostEventSource extends EventTarget {
             this.onerror?.(errorEvent);
         }
         this.readyState = PostEventSource.CLOSED;
+    }
+
+    // @ts-expect-error The override is typed correctly
+    override addEventListener(
+        type: SSEEvent,
+        listener: (evt: MessageEvent<string>) => void,
+        options?: boolean | AddEventListenerOptions
+    ): void {
+        // @ts-expect-error Works well
+        super.addEventListener(type, listener, options);
     }
 
     public close(): void {

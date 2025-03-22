@@ -1,5 +1,4 @@
-import { ConversationReqBody, ROLES } from "@convo-ai/shared";
-import { invariant } from "@convo-ai/shared";
+import { ConversationReqBody, ROLES, SSE_EVENTS } from "@convo-ai/shared";
 import { env } from "@/env";
 import { PostEventSource } from "@/lib/PostEventSource.ts";
 import { db } from "@/lib/db.ts";
@@ -34,16 +33,7 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
         });
     });
 
-    eventSource.addEventListener("delta", (event) => {
-        invariant(
-            event instanceof MessageEvent,
-            "Event must be a MessageEvent"
-        );
-        invariant(
-            typeof event.data === "string",
-            "Event data must be a string"
-        );
-
+    eventSource.addEventListener(SSE_EVENTS.DELTA, (event) => {
         buffer += event.data;
         void db.messages.update(assistantMessageId, {
             content: buffer,
@@ -52,16 +42,7 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
     });
 
     // Handle conversation name event from the server
-    eventSource.addEventListener("conversation_name", (event) => {
-        invariant(
-            event instanceof MessageEvent,
-            "Event must be a MessageEvent"
-        );
-        invariant(
-            typeof event.data === "string",
-            "Event data must be a string"
-        );
-
+    eventSource.addEventListener(SSE_EVENTS.CONVERSATION_NAME, (event) => {
         // Update the conversation title with the AI-generated name
         void db.conversations.update(conversationId, {
             title: event.data,
@@ -70,23 +51,17 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
     });
 
     // Handle message completion
-    eventSource.addEventListener("message", (event) => {
-        invariant(
-            event instanceof MessageEvent,
-            "Event must be a MessageEvent"
-        );
-        invariant(
-            typeof event.data === "string",
-            "Event data must be a string"
-        );
-
+    eventSource.addEventListener(SSE_EVENTS.MESSAGE, (event) => {
         if (event.data === "[DONE]") {
             eventSource.close();
         }
     });
 
     // Handle error events
-    eventSource.addEventListener("error", () => {
-        eventSource.close();
+    eventSource.addEventListener(SSE_EVENTS.SERVER_ERROR, (event) => {
+        console.error(`Server Error: ${event.data}`);
+    });
+    eventSource.addEventListener(SSE_EVENTS.ERROR, () => {
+        console.error("Unexpected SSE error occured");
     });
 }

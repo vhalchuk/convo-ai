@@ -1,9 +1,12 @@
 import { invariant } from "@epic-web/invariant";
+import { err, ok } from "neverthrow";
 import OpenAI from "openai";
-import { Message, Model, ROLES } from "@convo-ai/shared";
+import { Message, Model, ROLES, tryCatch } from "@convo-ai/shared";
+import { BLAME_WHO } from "@/enums";
 import { env } from "@/env";
 import { logger } from "@/services/logger";
 import { Service } from "@/services/service-interface";
+import { EnhancedError } from "@/utils/enhanced-error";
 
 type ChatCompletionCreateParams = {
     messages: Message[];
@@ -68,33 +71,54 @@ class Chat implements Service {
 
         const { model, userMessage, assistantResponse } = params;
 
-        const completion = await openaiClient.chat.completions.create({
-            messages: [
-                {
-                    role: ROLES.SYSTEM,
-                    content:
-                        "You are a helpful assistant that generates concise, descriptive conversation titles. Create a short, engaging title (maximum 40 characters) that captures the essence of the conversation based on the user's message and your response.",
-                },
-                {
-                    role: ROLES.USER,
-                    content: userMessage,
-                },
-                {
-                    role: ROLES.ASSISTANT,
-                    content: assistantResponse,
-                },
-                {
-                    role: ROLES.USER,
-                    content:
-                        "Based on our conversation, please generate a short, descriptive title for this chat (maximum 40 characters, no quotes).",
-                },
-            ],
-            model,
-            stream: false,
-            max_tokens: 30,
-        });
+        const result = await tryCatch(
+            openaiClient.chat.completions.create({
+                messages: [
+                    {
+                        role: ROLES.SYSTEM,
+                        content:
+                            "You are a helpful assistant that generates concise, descriptive conversation titles. Create a short, engaging title (maximum 40 characters) that captures the essence of the conversation based on the user's message and your response.",
+                    },
+                    {
+                        role: ROLES.USER,
+                        content: userMessage,
+                    },
+                    {
+                        role: ROLES.ASSISTANT,
+                        content: assistantResponse,
+                    },
+                    {
+                        role: ROLES.USER,
+                        content:
+                            "Based on our conversation, please generate a short, descriptive title for this chat (maximum 40 characters, no quotes).",
+                    },
+                ],
+                model,
+                stream: false,
+                max_tokens: 30,
+            })
+        );
 
-        return completion.choices[0]?.message?.content || "New conversation";
+        if (result.isErr()) {
+            return err(
+                new EnhancedError({
+                    blameWho: BLAME_WHO.SERVICE,
+                    message: "Failed to generate conversation name",
+                    originalError: result.error,
+                })
+            );
+        }
+
+        if (!result.value.choices[0]?.message?.content) {
+            return err(
+                new EnhancedError({
+                    blameWho: BLAME_WHO.SERVICE,
+                    message: "OpenAI response did not contain expected content",
+                })
+            );
+        }
+
+        return ok(result.value.choices[0].message.content);
     }
 }
 

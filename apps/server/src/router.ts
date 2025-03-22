@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { ROLES, conversationReqBodySchema, tryCatch } from "@convo-ai/shared";
+import { BLAME_WHO } from "@/enums";
 import { chat } from "@/services/chat";
-import { logger } from "@/services/logger";
+import { SSEError } from "@/utils/sse-error";
 import { validate } from "@/utils/validate";
 
 const router = Router();
@@ -13,21 +14,35 @@ router.get("/status", (_req, res) => {
     });
 });
 
-router.post("/conversation", async (req, res) => {
+router.post("/conversation", async (req, res, next) => {
     const { model, messages } = validate(conversationReqBodySchema, req.body);
 
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    // Check if this is the first message in the conversation
-    const isFirstMessage =
-        messages.filter((m) => m.role === ROLES.USER).length === 1;
+    await new Promise((res) => setTimeout(res, 50));
+
+    const completionResult = await tryCatch(
+        chat.createCompletion({ model, messages })
+    );
+
+    if (completionResult.isErr()) {
+        next(
+            new SSEError({
+                message: "Failed to initialize chat completion",
+                blameWho: BLAME_WHO.SERVICE,
+                originalError: completionResult.error,
+            })
+        );
+        return;
+    }
+
+    const { value: stream } = completionResult;
+
     let fullResponseContent = "";
 
-    const result = await tryCatch(async () => {
-        const stream = await chat.createCompletion({ model, messages });
-
+    const streamingResult = await tryCatch(async () => {
         for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content;
             if (typeof content !== "string") continue;
@@ -40,34 +55,50 @@ router.post("/conversation", async (req, res) => {
                 .join("");
             res.write(`event: delta\n${lines}\n`);
         }
-
-        // If this is the first message, generate a conversation name
-        if (isFirstMessage) {
-            const userMessage =
-                messages.find((m) => m.role === ROLES.USER)?.content || "";
-            const conversationName = await chat.generateConversationName({
-                model,
-                userMessage,
-                assistantResponse: fullResponseContent,
-            });
-
-            // Send the conversation name as a special event
-            res.write(
-                `event: conversation_name\ndata: ${conversationName}\n\n`
-            );
-        }
     });
 
-    if (result.isErr()) {
-        logger.log({
-            severity: logger.SEVERITIES.Error,
-            message: `Error during SSE streaming: ${result.error}`,
-        });
-        res.write(`event: error\ndata: ${result.error}\n\n`);
+    if (streamingResult.isErr()) {
+        next(
+            new SSEError({
+                message: "SSE streaming failure",
+                blameWho: BLAME_WHO.SERVICE,
+                originalError: streamingResult.error,
+            })
+        );
+        return;
     }
 
-    res.write("data: [DONE]\n\n");
-    res.end();
+    // Check if this is the first message in the conversation
+    const isFirstMessage =
+        messages.filter((m) => m.role === ROLES.USER).length === 1;
+    // If this is the first message, generate a conversation name
+    if (isFirstMessage) {
+        const userMessage =
+            messages.find((m) => m.role === ROLES.USER)?.content || "";
+        const conversationNameResult = await chat.generateConversationName({
+            model,
+            userMessage,
+            assistantResponse: fullResponseContent,
+        });
+
+        if (conversationNameResult.isErr()) {
+            next(
+                new SSEError({
+                    message: "Failed to initialize chat completion",
+                    blameWho: BLAME_WHO.SERVICE,
+                    originalError: conversationNameResult.error,
+                })
+            );
+            return;
+        }
+
+        const { value: conversationName } = conversationNameResult;
+
+        // Send the conversation name as a special event
+        res.write(`event: conversation_name\ndata: ${conversationName}\n\n`);
+    }
+
+    res.end("data: [DONE]\n\n");
 });
 
 export default router;

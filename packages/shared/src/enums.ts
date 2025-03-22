@@ -10,9 +10,12 @@ export const ROLES = {
     ASSISTANT: "assistant",
     USER: "user",
 } as const;
-export const roles = [
-    ROLES.SYSTEM,
-    ROLES.DEVELOPER,
-    ROLES.ASSISTANT,
-    ROLES.USER,
-] as const;
+
+export const SSE_EVENTS = {
+    OPEN: "open",
+    ERROR: "error",
+    MESSAGE: "message",
+    DELTA: "delta",
+    CONVERSATION_NAME: "conversation_name",
+    SERVER_ERROR: "server_error",
+} as const;
