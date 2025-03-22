@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ROLES, conversationReqBodySchema, tryCatch } from "@convo-ai/shared";
 import { BLAME_WHO } from "@/enums";
 import { chat } from "@/services/chat";
+import { SSEEmitter } from "@/utils/sse-emitter";
 import { SSEError } from "@/utils/sse-error";
 import { validate } from "@/utils/validate";
 
@@ -17,11 +18,9 @@ router.get("/status", (_req, res) => {
 router.post("/conversation", async (req, res, next) => {
     const { model, messages } = validate(conversationReqBodySchema, req.body);
 
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
+    const sse = new SSEEmitter(res);
 
-    await new Promise((res) => setTimeout(res, 50));
+    sse.setupHeaders();
 
     const completionResult = await tryCatch(
         chat.createCompletion({ model, messages })
@@ -48,12 +47,7 @@ router.post("/conversation", async (req, res, next) => {
             if (typeof content !== "string") continue;
 
             fullResponseContent += content;
-
-            const lines = content
-                .split("\n")
-                .map((line) => `data: ${line}\n`)
-                .join("");
-            res.write(`event: delta\n${lines}\n`);
+            sse.delta(content);
         }
     });
 
@@ -95,10 +89,10 @@ router.post("/conversation", async (req, res, next) => {
         const { value: conversationName } = conversationNameResult;
 
         // Send the conversation name as a special event
-        res.write(`event: conversation_name\ndata: ${conversationName}\n\n`);
+        sse.conversationName(conversationName);
     }
 
-    res.end("data: [DONE]\n\n");
+    sse.end();
 });
 
 export default router;

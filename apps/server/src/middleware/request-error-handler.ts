@@ -1,15 +1,16 @@
-import { ErrorRequestHandler } from "express";
+import { type NextFunction, type Request, type Response } from "express";
 import { BLAME_WHO } from "@/enums";
 import { logger } from "@/services/logger";
 import { EnhancedError } from "@/utils/enhanced-error";
+import { SSEEmitter } from "@/utils/sse-emitter";
 import { SSEError } from "@/utils/sse-error";
 import { ValidationError } from "@/utils/validate";
 
-export const requestErrorHandler: ErrorRequestHandler = (
-    err,
-    _req,
-    res,
-    _next
+export const requestErrorHandler = (
+    err: unknown,
+    _req: Request,
+    res: Response,
+    _next: NextFunction
 ) => {
     if (err instanceof SSEError) {
         logger.log({
@@ -18,9 +19,9 @@ export const requestErrorHandler: ErrorRequestHandler = (
             blameWho: err.blameWho,
             originalError: err.originalError,
         });
-        res.end(
-            `event: server_error\ndata: ${err.message}\n\ndata: [DONE]\n\n`
-        );
+        const sse = new SSEEmitter(res);
+        sse.serverError(err.message);
+        sse.end();
     } else if (err instanceof ValidationError) {
         logger.log({
             severity: logger.SEVERITIES.Error,

@@ -136,9 +136,15 @@ export class PostEventSource extends EventTarget {
                     }
                 }
             }
-        } catch {
+        } catch (error: unknown) {
+            if (error instanceof Error && error.name === "AbortError") {
+                return; // Ignore the abort error
+            }
+
             this.readyState = PostEventSource.CLOSED;
-            const errorEvent = new Event("error");
+            const errorEvent = new MessageEvent(SSE_EVENTS.ERROR, {
+                data: String(error),
+            });
             this.dispatchEvent(errorEvent);
             this.onerror?.(errorEvent);
         }

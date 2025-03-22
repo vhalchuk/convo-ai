@@ -59,9 +59,9 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
 
     // Handle error events
     eventSource.addEventListener(SSE_EVENTS.SERVER_ERROR, (event) => {
-        console.error(`Server Error: ${event.data}`);
+        console.error(`SSE error:`, event.data);
     });
-    eventSource.addEventListener(SSE_EVENTS.ERROR, () => {
-        console.error("Unexpected SSE error occured");
+    eventSource.addEventListener(SSE_EVENTS.ERROR, (event) => {
+        console.error("Unexpected SSE error:", event.data);
     });
 }
