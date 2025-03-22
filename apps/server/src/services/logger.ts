@@ -1,3 +1,4 @@
+import { BlameWho } from "@/enums";
 import { Service } from "@/services/service-interface";
 
 const LOG_SEVERITIES = {
@@ -7,12 +8,22 @@ const LOG_SEVERITIES = {
     Info: "info",
     Debug: "debug",
 } as const;
-type LogSeverity = (typeof LOG_SEVERITIES)[keyof typeof LOG_SEVERITIES];
+export type LogSeverity = (typeof LOG_SEVERITIES)[keyof typeof LOG_SEVERITIES];
 
-type LoggerParams = {
-    severity: LogSeverity;
-    message: string;
-};
+type LoggerParams =
+    | {
+          severity:
+              | typeof LOG_SEVERITIES.Debug
+              | typeof LOG_SEVERITIES.Info
+              | typeof LOG_SEVERITIES.Warn;
+          message: string;
+      }
+    | {
+          severity: typeof LOG_SEVERITIES.Error | typeof LOG_SEVERITIES.Fatal;
+          message: string;
+          blameWho?: BlameWho;
+          originalError?: unknown;
+      };
 
 class Logger implements Service {
     name = "LoggerService";
@@ -29,19 +40,19 @@ class Logger implements Service {
         return levels.indexOf(severity) <= levels.indexOf(this.logLevel);
     }
 
-    private formatMessage(severity: LogSeverity, message: string): string {
+    private formatMessage(severity: LogSeverity, data: unknown): string {
         const timestamp = new Date().toISOString();
-        return `[${timestamp}] [${severity.toUpperCase()}] ${message}`;
+        return `[${timestamp}] [${severity.toUpperCase()}] ${JSON.stringify(data, null, 2)}`;
     }
 
     public log(params: LoggerParams) {
-        const { severity, message } = params;
+        const { severity, ...rest } = params;
 
         if (!this.shouldLog(severity)) {
             return;
         }
 
-        const formattedMessage = this.formatMessage(severity, message);
+        const formattedMessage = this.formatMessage(severity, rest);
 
         switch (severity) {
             case LOG_SEVERITIES.Error:

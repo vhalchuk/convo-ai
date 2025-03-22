@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { conversationReqBodySchema, tryCatch } from "@convo-ai/shared";
+import { ROLES, conversationReqBodySchema, tryCatch } from "@convo-ai/shared";
+import { BLAME_WHO } from "@/enums";
+import { SSEEmitter } from "@/lib/sse-emitter";
+import { SSEError } from "@/lib/sse-error";
+import { validate } from "@/lib/validate";
 import { chat } from "@/services/chat";
-import { logger } from "@/services/logger";
-import { validate } from "@/utils/validate";
 
 const router = Router();
 
@@ -13,38 +15,84 @@ router.get("/status", (_req, res) => {
     });
 });
 
-router.post("/conversation", async (req, res) => {
+router.post("/conversation", async (req, res, next) => {
     const { model, messages } = validate(conversationReqBodySchema, req.body);
 
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
+    const sse = new SSEEmitter(res);
 
-    const result = await tryCatch(async () => {
-        const stream = await chat.createCompletion({ model, messages });
+    sse.setupHeaders();
 
+    const completionResult = await tryCatch(
+        chat.createCompletion({ model, messages })
+    );
+
+    if (completionResult.isErr()) {
+        next(
+            new SSEError({
+                message: "Failed to initialize chat completion",
+                blameWho: BLAME_WHO.SERVICE,
+                originalError: completionResult.error,
+            })
+        );
+        return;
+    }
+
+    const { value: stream } = completionResult;
+
+    let fullResponseContent = "";
+
+    const streamingResult = await tryCatch(async () => {
         for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content;
             if (typeof content !== "string") continue;
 
-            const lines = content
-                .split("\n")
-                .map((line) => `data: ${line}\n`)
-                .join("");
-            res.write(`event: delta\n${lines}\n`);
+            fullResponseContent += content;
+            sse.delta(content);
         }
     });
 
-    if (result.isErr()) {
-        logger.log({
-            severity: logger.SEVERITIES.Error,
-            message: `Error during SSE streaming: ${result.error}`,
-        });
-        res.write(`event: error\ndata: ${result.error}\n\n`);
+    if (streamingResult.isErr()) {
+        next(
+            new SSEError({
+                message: "SSE streaming failure",
+                blameWho: BLAME_WHO.SERVICE,
+                originalError: streamingResult.error,
+            })
+        );
+        return;
     }
 
-    res.write("data: [DONE]\n\n");
-    res.end();
+    // Check if this is the first message in the conversation
+    const isFirstMessage =
+        messages.filter((m) => m.role === ROLES.USER).length === 1;
+    // If this is the first message, generate a conversation name
+    if (isFirstMessage) {
+        const userMessage =
+            messages.find((m) => m.role === ROLES.USER)?.content || "";
+        const conversationNameResult = await chat.generateConversationName({
+            model,
+            userMessage,
+            assistantResponse: fullResponseContent,
+        });
+
+        if (conversationNameResult.isErr()) {
+            next(
+                new SSEError({
+                    message: "Failed to initialize chat completion",
+                    blameWho: BLAME_WHO.SERVICE,
+                    originalError: conversationNameResult.error,
+                })
+            );
+            return;
+        }
+
+        const { value: conversationName } = conversationNameResult;
+
+        // Send the conversation name as a special event
+        sse.conversationName(conversationName);
+    }
+
+    sse.end();
 });
 
 export default router;

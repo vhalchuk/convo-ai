@@ -11,8 +11,10 @@ const main = async () => {
     const initResult = await tryCatch(initializeServices);
     if (initResult.isErr()) {
         logger.log({
-            severity: logger.SEVERITIES.Error,
-            message: `Application failed to start due to service initialization failure: ${initResult.error}`,
+            severity: logger.SEVERITIES.Fatal,
+            originalError: initResult.error,
+            message:
+                "Application failed to start due to service initialization failure",
         });
         process.exit(1);
     }

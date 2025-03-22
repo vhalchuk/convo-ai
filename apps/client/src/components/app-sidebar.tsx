@@ -66,7 +66,13 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                                         asChild
                                         isActive={item.id === conversationId}
                                     >
-                                        <Link to={item.id}>{item.title}</Link>
+                                        <Link
+                                            to={item.id}
+                                            className="!block truncate group-hover/menu-item:pr-8"
+                                            title={item.title}
+                                        >
+                                            {item.title}
+                                        </Link>
                                     </SidebarMenuButton>
                                     <Button
                                         variant="link"
