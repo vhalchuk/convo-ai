@@ -1,10 +1,10 @@
 import { type NextFunction, type Request, type Response } from "express";
 import { BLAME_WHO } from "@/enums";
+import { EnhancedError } from "@/lib/enhanced-error";
+import { SSEEmitter } from "@/lib/sse-emitter";
+import { SSEError } from "@/lib/sse-error";
+import { ValidationError } from "@/lib/validate";
 import { logger } from "@/services/logger";
-import { EnhancedError } from "@/utils/enhanced-error";
-import { SSEEmitter } from "@/utils/sse-emitter";
-import { SSEError } from "@/utils/sse-error";
-import { ValidationError } from "@/utils/validate";
 
 export const requestErrorHandler = (
     err: unknown,

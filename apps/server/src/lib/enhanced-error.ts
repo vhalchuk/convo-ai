@@ -14,12 +14,9 @@ export class EnhancedError extends Error {
         const { message, blameWho, originalError } = params;
 
         super(message);
-        Object.setPrototypeOf(this, new.target.prototype); // Ensures instanceof works correctly
 
         this.name = this.constructor.name;
         this.blameWho = blameWho;
         this.originalError = originalError;
-
-        Error.captureStackTrace(this, this.constructor);
     }
 }

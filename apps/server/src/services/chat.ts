@@ -4,9 +4,9 @@ import OpenAI from "openai";
 import { Message, Model, ROLES, tryCatch } from "@convo-ai/shared";
 import { BLAME_WHO } from "@/enums";
 import { env } from "@/env";
+import { EnhancedError } from "@/lib/enhanced-error";
 import { logger } from "@/services/logger";
 import { Service } from "@/services/service-interface";
-import { EnhancedError } from "@/utils/enhanced-error";
 
 type ChatCompletionCreateParams = {
     messages: Message[];

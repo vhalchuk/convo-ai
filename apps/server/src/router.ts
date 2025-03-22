@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { ROLES, conversationReqBodySchema, tryCatch } from "@convo-ai/shared";
 import { BLAME_WHO } from "@/enums";
+import { SSEEmitter } from "@/lib/sse-emitter";
+import { SSEError } from "@/lib/sse-error";
+import { validate } from "@/lib/validate";
 import { chat } from "@/services/chat";
-import { SSEEmitter } from "@/utils/sse-emitter";
-import { SSEError } from "@/utils/sse-error";
-import { validate } from "@/utils/validate";
 
 const router = Router();
 
