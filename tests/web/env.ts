@@ -6,7 +6,7 @@ dotenv.config();
 
 export const env = createEnv({
     server: {
-        BASE_URL: z.string().url().default("http://localhost:3000"),
+        BASE_URL: z.string().url(),
         /* CI environment variable will always be available in GitHub Actions as "true" */
         CI: z
             .enum(["true", "false"])
