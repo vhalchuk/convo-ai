@@ -53,7 +53,7 @@ jobs:
               run: pnpm run check
 
             - name: Install Playwright Browsers
-              run: pnpm exec playwright install --with-deps
+              run: pnpm --filter @convo-ai/web-tests exec playwright install --with-deps
 
             - name: Start Dev Server
               run: pnpm run dev & echo $! > .dev-server-pid
