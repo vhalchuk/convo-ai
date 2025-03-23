@@ -23,6 +23,7 @@ export function MessageForm({ onSubmit }: Props) {
 
     return (
         <form
+            data-testid="message-form"
             onSubmit={(event) => {
                 event.preventDefault();
                 const formData = new FormData(event.currentTarget);
@@ -40,6 +41,7 @@ export function MessageForm({ onSubmit }: Props) {
                 <Textarea
                     name="content"
                     placeholder="Message AI"
+                    data-testid="message-input"
                     className="min-h-16 resize-none p-2 shadow-none"
                     onInput={(event) => {
                         event.currentTarget.style.height = "auto"; // Reset height to calculate new height

@@ -1,41 +1,93 @@
-name: Client check
+name: System Check
 
 on:
-  push:
-    branches:
-      - 'main'
-    paths:
-      - 'apps/client/src/**'
-      - 'apps/server/src/**'
-      - 'packages/shared/src/**'
-      - '.github/workflows/check.yml'
-  pull_request:
-    branches:
-      - 'main'
-    paths:
-      - 'apps/client/src/**'
-      - 'apps/server/src/**'
-      - 'packages/shared/src/**'
-      - '.github/workflows/check.yml'
+    push:
+        branches:
+            - "main"
+        paths:
+            - "apps/client/**"
+            - "apps/server/**"
+            - "packages/shared/**"
+            - "tests/web/**"
+            - ".github/workflows/check.yml"
+    pull_request:
+        branches:
+            - "main"
+        paths:
+            - "apps/client/**"
+            - "apps/server/**"
+            - "packages/**"
+            - "tests/web/**"
+            - ".github/workflows/check.yml"
+
+env:
+    # Client App
+    CLIENT_API_DOMAIN: http://localhost:8000
+    # Server App
+    ALLOWED_ORIGIN: http://localhost:5173
+    ENV: development
+    # Playwright Tests
+    BASE_URL: http://localhost:5173
+    # CI is automatically set by GitHub Actions
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
+    check:
+        timeout-minutes: 5
+        runs-on: ubuntu-latest
+        environment: CI
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+        # Add environment secrets
+        env:
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      - name: Setup Node.js 22 and pnpm cache
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+            - name: Install dependencies
+              run: npm install -g pnpm && pnpm install
 
-      - name: Install dependencies
-        run: pnpm install
+            - name: Run All Checks
+              run: pnpm run check
 
-      - name: Run All Checks
-        run: pnpm run check
+            - name: Install Playwright Browsers
+              run: pnpm --filter @convo-ai/web-tests exec playwright install --with-deps
+
+            - name: Start Dev Server
+              run: pnpm run dev & echo $! > .dev-server-pid
+
+            - name: Wait for Dev Server to be Ready
+              run: |
+                  echo "Waiting for dev server to be ready..."
+                  npx wait-on http://localhost:5173 -t 60000
+
+            - name: Verify Environment Variables for Tests
+              run: |
+                  echo "Checking required environment variables for tests..."
+                  # Don't print actual values of sensitive variables, just check existence
+                  [[ -n "$OPENAI_API_KEY" ]] && echo "✓ OPENAI_API_KEY is set" || echo "⚠️ OPENAI_API_KEY is missing"
+                  echo "✓ CI is set to: $CI"
+                  echo "✓ BASE_URL is set to: $BASE_URL"
+                  echo "✓ CLIENT_API_DOMAIN is set to: $CLIENT_API_DOMAIN"
+                  echo "✓ ALLOWED_ORIGIN is set to: $ALLOWED_ORIGIN"
+                  echo "✓ ENV is set to: $ENV"
+
+            - name: Run Playwright tests
+              run: pnpm run e2e
+
+            - name: Stop Dev Server
+              if: always()
+              run: |
+                  if [ -f .dev-server-pid ]; then
+                    kill $(cat .dev-server-pid) || true
+                    rm .dev-server-pid
+                  fi
+
+            - uses: actions/upload-artifact@v4
+              if: ${{ !cancelled() }}
+              with:
+                  name: playwright-report
+                  path: tests/web/playwright-report/
+                  retention-days: 30
