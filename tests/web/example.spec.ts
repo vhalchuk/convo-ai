@@ -1,20 +1,14 @@
 import { expect, test } from "@playwright/test";
+import { env } from "./env";
 
-test("has title", async ({ page }) => {
-    await page.goto("https://playwright.dev/");
-
-    // Expect a title "to contain" a substring.
-    await expect(page).toHaveTitle(/Playwright/);
+test("environment is configured correctly", async () => {
+    expect(env.BASE_URL).toBeTruthy();
 });
 
-test("get started link", async ({ page }) => {
-    await page.goto("https://playwright.dev/");
+test("homepage loads", async ({ page }) => {
+    // Uses the baseURL from the env config
+    await page.goto("/");
 
-    // Click the get started link.
-    await page.getByRole("link", { name: "Get started" }).click();
-
-    // Expects page to have a heading with the name of Installation.
-    await expect(
-        page.getByRole("heading", { name: "Installation" })
-    ).toBeVisible();
+    // Basic check that the page loads
+    await expect(page).toHaveTitle("Convo AI");
 });

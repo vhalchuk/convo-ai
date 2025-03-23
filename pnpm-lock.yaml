@@ -293,9 +293,15 @@ importers:
       '@t3-oss/env-core':
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.8.2)(zod@3.24.2)
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.2
     devDependencies:
       '@playwright/test':
         specifier: ^1.51.1
