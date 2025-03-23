@@ -20,10 +20,25 @@ on:
             - "tests/web/**"
             - ".github/workflows/check.yml"
 
+env:
+    # Client App
+    CLIENT_API_DOMAIN: http://localhost:8000
+    # Server App
+    ALLOWED_ORIGIN: http://localhost:5173
+    ENV: development
+    # Playwright Tests
+    BASE_URL: http://localhost:5173
+    # CI is automatically set by GitHub Actions
+
 jobs:
     check:
         timeout-minutes: 5
         runs-on: ubuntu-latest
+        environment: CI
+
+        # Add environment secrets
+        env:
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
         steps:
             - uses: actions/checkout@v4
@@ -39,8 +54,37 @@ jobs:
 
             - name: Install Playwright Browsers
               run: pnpm exec playwright install --with-deps
+
+            - name: Start Dev Server
+              run: pnpm run dev & echo $! > .dev-server-pid
+
+            - name: Wait for Dev Server to be Ready
+              run: |
+                  echo "Waiting for dev server to be ready..."
+                  npx wait-on http://localhost:5173 -t 60000
+
+            - name: Verify Environment Variables for Tests
+              run: |
+                  echo "Checking required environment variables for tests..."
+                  # Don't print actual values of sensitive variables, just check existence
+                  [[ -n "$OPENAI_API_KEY" ]] && echo "✓ OPENAI_API_KEY is set" || echo "⚠️ OPENAI_API_KEY is missing"
+                  echo "✓ CI is set to: $CI"
+                  echo "✓ BASE_URL is set to: $BASE_URL"
+                  echo "✓ CLIENT_API_DOMAIN is set to: $CLIENT_API_DOMAIN"
+                  echo "✓ ALLOWED_ORIGIN is set to: $ALLOWED_ORIGIN"
+                  echo "✓ ENV is set to: $ENV"
+
             - name: Run Playwright tests
               run: pnpm run e2e
+
+            - name: Stop Dev Server
+              if: always()
+              run: |
+                  if [ -f .dev-server-pid ]; then
+                    kill $(cat .dev-server-pid) || true
+                    rm .dev-server-pid
+                  fi
+
             - uses: actions/upload-artifact@v4
               if: ${{ !cancelled() }}
               with:
