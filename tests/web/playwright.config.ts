@@ -2,14 +2,6 @@ import { defineConfig, devices } from "@playwright/test";
 import { env } from "./env";
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
@@ -34,42 +26,58 @@ export default defineConfig({
     },
 
     /* Configure projects for major browsers */
-    projects: [
-        {
-            name: "chromium",
-            use: { ...devices["Desktop Chrome"] },
-        },
+    projects: env.CI
+        ? [
+              /*
+               * In CI, we only run tests in Chromium to:
+               * 1. Reduce CI time significantly (less browser installation and execution time)
+               * 2. Minimize resource usage on CI runners
+               * 3. Get quick feedback on basic functionality failures
+               *
+               * During local development, we test across all major browsers to catch
+               * cross-browser compatibility issues early.
+               */
+              {
+                  name: "chromium",
+                  use: { ...devices["Desktop Chrome"] },
+              },
+          ]
+        : [
+              {
+                  name: "chromium",
+                  use: { ...devices["Desktop Chrome"] },
+              },
 
-        {
-            name: "firefox",
-            use: { ...devices["Desktop Firefox"] },
-        },
+              {
+                  name: "firefox",
+                  use: { ...devices["Desktop Firefox"] },
+              },
 
-        {
-            name: "webkit",
-            use: { ...devices["Desktop Safari"] },
-        },
+              {
+                  name: "webkit",
+                  use: { ...devices["Desktop Safari"] },
+              },
 
-        /* Test against mobile viewports. */
-        // {
-        //   name: 'Mobile Chrome',
-        //   use: { ...devices['Pixel 5'] },
-        // },
-        // {
-        //   name: 'Mobile Safari',
-        //   use: { ...devices['iPhone 12'] },
-        // },
+              /* Test against mobile viewports. */
+              // {
+              //   name: 'Mobile Chrome',
+              //   use: { ...devices['Pixel 5'] },
+              // },
+              // {
+              //   name: 'Mobile Safari',
+              //   use: { ...devices['iPhone 12'] },
+              // },
 
-        /* Test against branded browsers. */
-        // {
-        //   name: 'Microsoft Edge',
-        //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-        // },
-        // {
-        //   name: 'Google Chrome',
-        //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-        // },
-    ],
+              /* Test against branded browsers. */
+              // {
+              //   name: 'Microsoft Edge',
+              //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+              // },
+              // {
+              //   name: 'Google Chrome',
+              //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+              // },
+          ],
 
     /* Run your local dev server before starting the tests */
     // webServer: {
