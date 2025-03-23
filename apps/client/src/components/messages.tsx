@@ -102,7 +102,11 @@ export function Messages({ messages }: Props) {
     return messages.map(({ role, content }, index) => {
         if (role === "assistant") {
             return (
-                <div key={index} className="prose prose-invert">
+                <div
+                    key={index}
+                    className="prose prose-invert"
+                    data-testid="assistant-message"
+                >
                     <Markdown
                         components={{
                             code: Code,
@@ -118,7 +122,10 @@ export function Messages({ messages }: Props) {
         // role === "user"
         return (
             <div key={index} className="flex justify-end">
-                <div className="bg-muted max-w-[80%] rounded-2xl p-4">
+                <div
+                    className="bg-muted max-w-[80%] rounded-2xl p-4"
+                    data-testid="user-message"
+                >
                     {content}
                 </div>
             </div>
