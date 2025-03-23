@@ -2,16 +2,18 @@
     "name": "convo-ai",
     "workspaces": [
         "packages/*",
-        "apps/*"
+        "apps/*",
+        "tests/*"
     ],
     "scripts": {
         "dev": "concurrently --names \"CLIENT,SERVER\" --prefix-colors \"blue,magenta\" \"pnpm --filter @convo-ai/client run dev\" \"pnpm --filter @convo-ai/server run dev\"",
+        "check": "pnpm run prettier:check && pnpm run type-check && pnpm run lint && pnpm run test",
+        "e2e": "pnpm run -r e2e",
         "prettier:write": "pnpm run -r prettier:write",
         "prettier:check": "pnpm run -r prettier:check",
         "type-check": "pnpm run -r type-check",
         "lint": "pnpm run -r lint",
         "test": "pnpm run -r test",
-        "check": "pnpm run prettier:check && pnpm run type-check && pnpm run lint && pnpm run test",
         "clean": "pnpm run -r clean",
         "build:packages": "pnpm --filter @convo-ai/shared run build",
         "build:client": "pnpm --filter @convo-ai/client run build",

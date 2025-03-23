@@ -5,7 +5,7 @@ import { db } from "@/lib/db.ts";
 
 export async function chat(conversationId: string, body: ConversationReqBody) {
     const eventSource = new PostEventSource(
-        `${env.VITE_API_DOMAIN}/conversation`,
+        `${env.CLIENT_API_DOMAIN}/conversation`,
         {
             headers: {
                 "Content-Type": "application/json",
