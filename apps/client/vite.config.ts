@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
     const isAnalyze = env.ANALYZE === "true";
 
     return {
+        envPrefix: "CLIENT_",
         plugins: [
             react({
                 babel: {
