@@ -1,8 +1,17 @@
 export const MODELS = {
-    GPT4oMini: "gpt-4o-mini",
-    GPT4o: "gpt-4o",
+    "gpt-4.1": "gpt-4.1",
+    "gpt-4.1-mini": "gpt-4.1-mini",
+    "gpt-4.1-nano": "gpt-4.1-nano",
+    "o4-mini": "o4-mini",
+    o3: "o3",
 } as const;
-export const models = [MODELS.GPT4oMini, MODELS.GPT4o] as const;
+export const models = [
+    MODELS["gpt-4.1"],
+    MODELS["gpt-4.1-mini"],
+    MODELS["gpt-4.1-nano"],
+    MODELS["o4-mini"],
+    MODELS.o3,
+] as const;
 
 export const ROLES = {
     SYSTEM: "system",

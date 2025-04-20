@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { ROLES, conversationReqBodySchema, tryCatch } from "@convo-ai/shared";
+import {
+    MODELS,
+    ROLES,
+    conversationReqBodySchema,
+    tryCatch,
+} from "@convo-ai/shared";
 import { BLAME_WHO } from "@/enums";
 import { SSEEmitter } from "@/lib/sse-emitter";
 import { SSEError } from "@/lib/sse-error";
@@ -70,7 +75,7 @@ router.post("/conversation", async (req, res, next) => {
         const userMessage =
             messages.find((m) => m.role === ROLES.USER)?.content || "";
         const conversationNameResult = await chat.generateConversationName({
-            model,
+            model: MODELS["gpt-4.1-nano"],
             userMessage,
             assistantResponse: fullResponseContent,
         });

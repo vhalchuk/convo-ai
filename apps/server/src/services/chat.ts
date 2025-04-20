@@ -95,7 +95,7 @@ class Chat implements Service {
                 ],
                 model,
                 stream: false,
-                max_tokens: 30,
+                max_completion_tokens: 30,
             })
         );
 

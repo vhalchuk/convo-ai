@@ -10,7 +10,7 @@ type PreferredModelState = {
 export const usePreferredModelStore = create<PreferredModelState>()(
     persist(
         (set) => ({
-            model: MODELS.GPT4o,
+            model: MODELS["gpt-4.1-mini"],
             setModel: (model) => {
                 set({ model });
             },
