@@ -1,0 +1,20 @@
+{
+    "extends": "../tsconfig.json",
+
+    "compilerOptions": {
+        /* If NOT transpiling with TypeScript: */
+        "module": "preserve",
+        "noEmit": true,
+
+        /* If your code doesn't run in the DOM: */
+        "lib": ["es2022"],
+
+        "paths": {
+            /* Resolve to packages' source code: */
+            "@convo-ai/shared": ["../packages/shared/src/index.ts"],
+            "@convo-ai/server": ["../apps/server/src/index.ts"]
+        }
+    },
+
+    "include": ["."]
+}

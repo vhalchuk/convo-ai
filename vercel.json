@@ -1,0 +1,6 @@
+{
+    "buildCommand": "pnpm run build",
+    "installCommand": "pnpm install",
+    "outputDirectory": "apps/client/dist",
+    "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
+}
