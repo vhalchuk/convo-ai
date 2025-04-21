@@ -202,16 +202,14 @@ class Chat implements Service {
             );
         }
 
-        const parsedModelTier = z
-            .nativeEnum(MODEL_TIERS)
-            .safeParse(completionResult.value.choices[0].message.content);
+        const modelTier = completionResult.value.choices[0].message.content;
+        const parsedModelTier = z.nativeEnum(MODEL_TIERS).safeParse(modelTier);
 
         if (parsedModelTier.error) {
             return err(
                 new EnhancedError({
                     blameWho: BLAME_WHO.SERVICE,
-                    message:
-                        "OpenAI response responded with incorrect model tier",
+                    message: `Unexpected model tier "${modelTier}"`,
                 })
             );
         }
