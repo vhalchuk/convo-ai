@@ -1,15 +1,19 @@
 import { Router } from "express";
 import {
     MODELS,
+    Model,
     ROLES,
     conversationReqBodySchema,
+    invariant,
+    models,
     tryCatch,
 } from "@convo-ai/shared";
 import { BLAME_WHO } from "@/enums";
 import { SSEEmitter } from "@/lib/sse-emitter";
 import { SSEError } from "@/lib/sse-error";
 import { validate } from "@/lib/validate";
-import { chat } from "@/services/chat";
+import { chat } from "@/services/chat/chat";
+import { logger } from "@/services/logger";
 
 const router = Router();
 
@@ -27,8 +31,50 @@ router.post("/conversation", async (req, res, next) => {
 
     sse.setupHeaders();
 
+    const lastUserMessage = messages.at(-1);
+
+    invariant(lastUserMessage, "lastUserMessage must be defined");
+
+    // Initialize selectedModel with the user-provided model
+    let selectedModel = model;
+
+    // If auto mode is specified, use the model selection logic
+    if (model === "auto") {
+        const modelSelectionResult = await chat.pickModel(
+            lastUserMessage.content
+        );
+
+        if (modelSelectionResult.isErr()) {
+            const { message, blameWho, originalError } =
+                modelSelectionResult.error;
+            logger.log({
+                severity: logger.SEVERITIES.Error,
+                message,
+                blameWho,
+                originalError,
+            });
+            // Fallback to a default model if auto-selection fails
+            selectedModel = MODELS["gpt-4.1"];
+            logger.log({
+                severity: logger.SEVERITIES.Info,
+                message: `Auto model selection failed, falling back to: ${selectedModel}`,
+            });
+        } else {
+            selectedModel = modelSelectionResult.value;
+            logger.log({
+                severity: logger.SEVERITIES.Info,
+                message: `Auto-selected model: ${selectedModel}`,
+            });
+        }
+    }
+
+    invariant(
+        models.includes(selectedModel as Model),
+        "selectedModel must be one of the supported models"
+    );
+
     const completionResult = await tryCatch(
-        chat.createCompletion({ model, messages })
+        chat.createCompletion({ model: selectedModel as Model, messages })
     );
 
     if (completionResult.isErr()) {

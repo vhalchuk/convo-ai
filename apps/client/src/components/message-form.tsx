@@ -18,6 +18,14 @@ type Props = {
     onSubmit: OnSubmit;
 };
 
+const OPTIONS = [
+    "auto",
+    MODELS["gpt-4.1-mini"],
+    MODELS["gpt-4.1"],
+    MODELS["o4-mini"],
+    MODELS.o3,
+];
+
 export function MessageForm({ onSubmit }: Props) {
     const { model: preferredModel, setModel } = usePreferredModelStore();
 
@@ -69,9 +77,9 @@ export function MessageForm({ onSubmit }: Props) {
                         <SelectValue placeholder="Select a model" />
                     </SelectTrigger>
                     <SelectContent>
-                        {Object.values(MODELS).map((model) => (
-                            <SelectItem key={model} value={model}>
-                                {model}
+                        {OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
                             </SelectItem>
                         ))}
                     </SelectContent>
