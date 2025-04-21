@@ -19,4 +19,4 @@ export const TOKEN_IDS = {
     reason: 42743,
     "-lite": 188964,
     "-pro": 9666,
-};
+} as const;
