@@ -5,6 +5,7 @@ import {
     ROLES,
     conversationReqBodySchema,
     invariant,
+    models,
     tryCatch,
 } from "@convo-ai/shared";
 import { BLAME_WHO } from "@/enums";
@@ -66,6 +67,11 @@ router.post("/conversation", async (req, res, next) => {
             });
         }
     }
+
+    invariant(
+        models.includes(selectedModel as Model),
+        "selectedModel must be one of the supported models"
+    );
 
     const completionResult = await tryCatch(
         chat.createCompletion({ model: selectedModel as Model, messages })

@@ -5,6 +5,7 @@ export const MODELS = {
     "o4-mini": "o4-mini",
     o3: "o3",
 } as const;
+export const models = Object.values(MODELS);
 
 export const ROLES = {
     SYSTEM: "system",
