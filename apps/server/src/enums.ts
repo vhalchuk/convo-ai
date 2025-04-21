@@ -13,3 +13,10 @@ export const MODEL_TIERS = {
     REASON_LITE: "reason-lite",
     REASON_PRO: "reason-pro",
 } as const;
+
+export const TOKEN_IDS = {
+    direct: 37135,
+    reason: 42743,
+    "-lite": 188964,
+    "-pro": 9666,
+};

@@ -3,7 +3,7 @@ import { err, ok } from "neverthrow";
 import OpenAI from "openai";
 import { z } from "zod";
 import { MODELS, Message, Model, ROLES, tryCatch } from "@convo-ai/shared";
-import { BLAME_WHO, MODEL_TIERS } from "@/enums";
+import { BLAME_WHO, MODEL_TIERS, TOKEN_IDS } from "@/enums";
 import { getEnv } from "@/env";
 import { EnhancedError } from "@/lib/enhanced-error";
 import { renderPrompt } from "@/lib/render-prompt";
@@ -173,6 +173,12 @@ class Chat implements Service {
                 max_completion_tokens: 2,
                 temperature: 0,
                 stop: ["\n"],
+                logit_bias: {
+                    [TOKEN_IDS.direct]: 100,
+                    [TOKEN_IDS.reason]: 100,
+                    [TOKEN_IDS["-lite"]]: 100,
+                    [TOKEN_IDS["-pro"]]: 100,
+                },
             })
         );
 
