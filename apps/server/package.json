@@ -24,6 +24,7 @@
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",
         "express": "^5.0.1",
+        "handlebars": "^4.7.8",
         "lodash-es": "^4.17.21",
         "neverthrow": "^8.2.0",
         "openai": "^4.86.2",
