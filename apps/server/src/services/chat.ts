@@ -3,7 +3,7 @@ import { err, ok } from "neverthrow";
 import OpenAI from "openai";
 import { Message, Model, ROLES, tryCatch } from "@convo-ai/shared";
 import { BLAME_WHO } from "@/enums";
-import { env } from "@/env";
+import { getEnv } from "@/env";
 import { EnhancedError } from "@/lib/enhanced-error";
 import { logger } from "@/services/logger";
 import { Service } from "@/services/service-interface";
@@ -34,7 +34,7 @@ class Chat implements Service {
             return;
         }
         this.openaiClient = new OpenAI({
-            apiKey: env.OPENAI_API_KEY,
+            apiKey: getEnv().OPENAI_API_KEY,
         });
         this.isInitialized = true;
     }

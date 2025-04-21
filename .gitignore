@@ -17,3 +17,4 @@ dist
 logs
 *.log
 pnpm-debug.log*
+.vercel

@@ -1,6 +1,7 @@
 {
     "name": "convo-ai",
     "workspaces": [
+        "api",
         "packages/*",
         "apps/*",
         "tests/*"

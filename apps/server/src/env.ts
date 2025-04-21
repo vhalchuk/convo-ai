@@ -1,34 +1,30 @@
 import { createEnv } from "@t3-oss/env-core";
-import dotenv from "dotenv";
 import { z } from "zod";
 
-dotenv.config();
-
-export const env = createEnv({
-    server: {
-        ALLOWED_ORIGIN: z.string().url(),
-        ENV: z.union([z.literal("development"), z.literal("production")]),
-        OPENAI_API_KEY: z.string().min(1),
-    },
-
-    /**
-     * What object holds the environment variables at runtime. This is usually
-     * `process.env` or `import.meta.env`.
-     */
-    runtimeEnv: process.env,
-
-    /**
-     * By default, this library will feed the environment variables directly to
-     * the Zod validator.
-     *
-     * This means that if you have an empty string for a value that is supposed
-     * to be a number (e.g. `PORT=` in a ".env" file), Zod will incorrectly flag
-     * it as a type mismatch violation. Additionally, if you have an empty string
-     * for a value that is supposed to be a string with a default value (e.g.
-     * `DOMAIN=` in an ".env" file), the default value will never be applied.
-     *
-     * In order to solve these issues, we recommend that all new projects
-     * explicitly specify this option as true.
-     */
-    emptyStringAsUndefined: true,
+export const envSchema = z.object({
+    ALLOWED_ORIGIN: z.string().url(),
+    ENV: z.union([z.literal("development"), z.literal("production")]),
+    OPENAI_API_KEY: z.string().min(1),
 });
+
+export type Env = z.infer<typeof envSchema>;
+
+let env: Env;
+
+export const setEnv = (_env: Env) => {
+    env = createEnv({
+        server: {
+            ALLOWED_ORIGIN: z.string().url(),
+            ENV: z.union([z.literal("development"), z.literal("production")]),
+            OPENAI_API_KEY: z.string().min(1),
+        },
+        runtimeEnv: _env,
+        emptyStringAsUndefined: true,
+    });
+};
+
+export const getEnv = () => {
+    if (!env) throw new Error("env hasn't been initialized yet");
+
+    return env;
+};

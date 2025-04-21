@@ -1,0 +1,13 @@
+{
+    "name": "@convo-ai/api",
+    "version": "0.0.0",
+    "type": "module",
+    "dependencies": {
+        "@convo-ai/shared": "workspace:*",
+        "@convo-ai/server": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/node": "~22.13.0",
+        "typescript": "^5.8.2"
+    }
+}
