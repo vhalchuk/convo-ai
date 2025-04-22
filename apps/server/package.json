@@ -8,7 +8,7 @@
         }
     },
     "scripts": {
-        "dev": "cross-env ENV=development tsx watch src/dev.ts",
+        "dev": "cross-env ENV=development tsx watch --import ./register-assets-loader.mjs src/dev.ts",
         "clean": "rimraf ./dist",
         "build": "pnpm run clean && node build.mjs",
         "start": "cross-env ENV=production node ./dist/index.mjs",

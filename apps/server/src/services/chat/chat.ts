@@ -7,9 +7,10 @@ import { BLAME_WHO, MODEL_TIERS, TOKEN_IDS } from "@/enums";
 import { getEnv } from "@/env";
 import { EnhancedError } from "@/lib/enhanced-error";
 import { renderPrompt } from "@/lib/render-prompt";
-import { resolveRelative } from "@/lib/resolve-relative";
 import { logger } from "@/services/logger";
 import { Service } from "@/services/service-interface";
+import namePromptPath from "./generate-conversation-name.md";
+import modelPromptPath from "./pick-model.md";
 
 type ChatCompletionCreateParams = {
     messages: Message[];
@@ -74,11 +75,8 @@ class Chat implements Service {
 
         const { model, userMessage, assistantResponse } = params;
 
-        const promptPath = resolveRelative(
-            import.meta.url,
-            "generate-conversation-name.md"
-        );
-        const promptResult = await tryCatch(renderPrompt(promptPath));
+        const promptUrl = new URL(namePromptPath, import.meta.url);
+        const promptResult = await tryCatch(renderPrompt(promptUrl));
 
         if (promptResult.isErr()) {
             return err(
@@ -143,8 +141,8 @@ class Chat implements Service {
     public async pickModel(lastMessage: string) {
         const openaiClient = this.validateInitialization();
 
-        const promptPath = resolveRelative(import.meta.url, "pick-model.md");
-        const promptResult = await tryCatch(renderPrompt(promptPath));
+        const promptUrl = new URL(modelPromptPath, import.meta.url);
+        const promptResult = await tryCatch(renderPrompt(promptUrl));
 
         if (promptResult.isErr()) {
             return err(
