@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import Handlebars from "handlebars";
 
 export async function renderPrompt(
-    templatePath: string,
+    templatePath: string | URL,
     context?: Record<string, unknown>
 ): Promise<string> {
     const raw = await fs.readFile(templatePath, "utf-8");

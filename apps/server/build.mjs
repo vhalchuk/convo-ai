@@ -14,6 +14,7 @@ import esbuild from "esbuild";
         target: "esnext",
         format: "esm",
         outfile: "dist/index.mjs",
+        loader: { ".md": "file" },
     });
 
     const end = Date.now();
