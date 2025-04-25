@@ -9,6 +9,7 @@
     },
     "scripts": {
         "dev": "cross-env ENV=development tsx watch --import ./register-assets-loader.mjs src/dev.ts",
+        "eval:dev": "evalite watch",
         "clean": "rimraf ./dist",
         "build": "pnpm run clean && node build.mjs",
         "start": "cross-env ENV=production node ./dist/index.mjs",
@@ -36,11 +37,14 @@
         "@types/express": "^5.0.0",
         "@types/lodash-es": "^4.17.12",
         "@types/node": "~22.13.0",
+        "autoevals": "^0.0.127",
         "cross-env": "^7.0.3",
         "esbuild": "^0.25.0",
+        "evalite": "^0.11.0",
         "prettier": "^3.4.2",
         "rimraf": "^6.0.1",
         "tsx": "^4.19.3",
-        "typescript": "^5.8.2"
+        "typescript": "^5.8.2",
+        "vitest": "^3.0.6"
     }
 }
