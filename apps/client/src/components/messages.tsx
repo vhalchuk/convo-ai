@@ -99,7 +99,7 @@ const Code: Component = ({ children, className }) => {
 const Pre = ({ children }: PropsWithChildren) => <>{children}</>;
 
 export function Messages({ messages }: Props) {
-    return messages.map(({ role, content }, index) => {
+    return messages.map(({ role, content, model }, index) => {
         if (role === "assistant") {
             return (
                 <div
@@ -107,6 +107,11 @@ export function Messages({ messages }: Props) {
                     className="prose prose-invert"
                     data-testid="assistant-message"
                 >
+                    {model && (
+                        <div className="text-muted-foreground mb-2 text-sm">
+                            Using model: {model}
+                        </div>
+                    )}
                     <Markdown
                         components={{
                             code: Code,

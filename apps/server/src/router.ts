@@ -92,6 +92,8 @@ router.post("/conversation", async (req, res, next) => {
 
     let fullResponseContent = "";
 
+    sse.modelInfo(selectedModel);
+
     const streamingResult = await tryCatch(async () => {
         for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content;

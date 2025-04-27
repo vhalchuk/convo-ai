@@ -21,4 +21,5 @@ export const SSE_EVENTS = {
     DELTA: "delta",
     CONVERSATION_NAME: "conversation_name",
     SERVER_ERROR: "server_error",
+    MODEL_INFO: "model_info",
 } as const;
