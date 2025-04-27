@@ -35,13 +35,13 @@ test("can send message to AI assistant and receive response", async ({
     await expect(userMessage).toContainText(testMessage);
 
     // Wait for any response from the assistant to appear
-    await page.waitForSelector('[data-testid="assistant-message"]', {
+    await page.waitForSelector('[data-testid="assistant-message-content"]', {
         timeout: 2_000,
     });
 
     // Verify that the assistant response contains some text
     const assistantResponse = page
-        .locator('[data-testid="assistant-message"]')
+        .locator('[data-testid="assistant-message-content"]')
         .first();
     await expect(assistantResponse).toBeVisible();
 

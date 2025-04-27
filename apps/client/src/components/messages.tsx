@@ -98,6 +98,38 @@ const Code: Component = ({ children, className }) => {
 };
 const Pre = ({ children }: PropsWithChildren) => <>{children}</>;
 
+const CopyAssistantMessageButton = ({ content }: { content: string }) => {
+    const [copied, setCopied] = useState(false);
+
+    const copyToClipboard = async () => {
+        const result = await tryCatch(navigator.clipboard.writeText(content));
+
+        if (result.isOk()) {
+            setCopied(true);
+            setTimeout(() => {
+                setCopied(false);
+            }, 2000);
+        }
+    };
+
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+                void copyToClipboard();
+            }}
+            aria-label="Copy message"
+        >
+            {copied ? (
+                <Check className="h-4 w-4" />
+            ) : (
+                <Copy className="h-4 w-4" />
+            )}
+        </Button>
+    );
+};
+
 export function Messages({ messages }: Props) {
     return messages.map(({ role, content, model }, index) => {
         if (role === "assistant") {
@@ -112,14 +144,17 @@ export function Messages({ messages }: Props) {
                             Using model: {model}
                         </div>
                     )}
-                    <Markdown
-                        components={{
-                            code: Code,
-                            pre: Pre,
-                        }}
-                    >
-                        {content}
-                    </Markdown>
+                    <div data-testid="assistant-message-content">
+                        <Markdown
+                            components={{
+                                code: Code,
+                                pre: Pre,
+                            }}
+                        >
+                            {content}
+                        </Markdown>
+                    </div>
+                    <CopyAssistantMessageButton content={content} />
                 </div>
             );
         }
