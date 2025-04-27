@@ -102,9 +102,9 @@ const CopyAssistantMessageButton = ({ content }: { content: string }) => {
     const [copied, setCopied] = useState(false);
 
     const copyToClipboard = async () => {
-        const { isOk } = await tryCatch(navigator.clipboard.writeText(content));
+        const result = await tryCatch(navigator.clipboard.writeText(content));
 
-        if (isOk()) {
+        if (result.isOk()) {
             setCopied(true);
             setTimeout(() => {
                 setCopied(false);
