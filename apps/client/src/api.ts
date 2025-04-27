@@ -33,6 +33,13 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
         });
     });
 
+    eventSource.addEventListener(SSE_EVENTS.MODEL_INFO, (event) => {
+        void db.messages.update(assistantMessageId, {
+            model: event.data,
+            updatedAt: Date.now(),
+        });
+    });
+
     eventSource.addEventListener(SSE_EVENTS.DELTA, (event) => {
         buffer += event.data;
         void db.messages.update(assistantMessageId, {

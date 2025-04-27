@@ -46,6 +46,10 @@ export class SSEEmitter {
         );
     }
 
+    public modelInfo(model: string): void {
+        this.res.write(`event: ${SSE_EVENTS.MODEL_INFO}\ndata: ${model}\n\n`);
+    }
+
     /**
      * End the SSE connection
      */
