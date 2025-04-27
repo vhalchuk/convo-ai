@@ -23,7 +23,6 @@ test("displays model information for specific model", async ({ page }) => {
 
     await page.waitForSelector('[data-testid="message-input"]');
 
-    await page.click('select[name="model"]');
     await page.selectOption('select[name="model"]', "gpt-4.1");
 
     const testMessage = "What is the capital of France?";
