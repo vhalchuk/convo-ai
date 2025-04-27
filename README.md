@@ -5,14 +5,42 @@ Convo AI is an open-source project that lets you run a custom ChatGPT locally us
 - **NodeJS Server:** Handles API interactions and backend logic.
 - **React Client:** Provides a chat interface for interacting with the server.
 
+## Tech Stack
+
+### Server
+
+- Node.js
+- Express
+- TypeScript
+- OpenAI API
+- Vercel Serverless Functions
+
+### Client
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Shadcn UI
+
+### Testing
+
+- Playwright (E2E)
+
 ## Features
 
 - **Live Reloading:** Automatically reloads code on changes.
 - **Offline Data Storage:** Conversations are stored in the browser using IndexedDB.
+- **Modern UI:** Built with Tailwind CSS and Shadcn UI components.
+- **Type Safety:** Full TypeScript support across the stack.
+- **E2E Testing:** Comprehensive end-to-end tests using Playwright.
+- **Serverless Deployment:** API routes deployed as Vercel serverless functions.
 
 ## Prerequisites
 
 - [pnpm](https://pnpm.io/installation)
+- Node.js (v20 or higher)
+- OpenAI API key
 
 ## Setup Instructions
 
@@ -25,21 +53,46 @@ Convo AI is an open-source project that lets you run a custom ChatGPT locally us
 
 2. **Configure Environment Variables**
 
-- For the server:
+- For the server (`apps/server/.env`):
 
-    Open your preferred text editor or file manager and create a copy of `server/.env.example`. Rename the copied file to `.env` (keeping it in the same folder). Then, update the values in the new `.env` file with the keys provided.
+    ```
+    OPENAI_API_KEY=your_openai_api_key
+    PORT=3000
+    ```
 
-- For the client:
+- For the client (`apps/client/.env`):
+    ```
+    VITE_API_URL=http://localhost:3000
+    ```
 
-    Similarly, duplicate the `client/.env.example` file as `.env` in the client folder and fill in the necessary keys.
+3. **Install Dependencies**
 
-3. **Start the Project**
+    ```bash
+    pnpm install
+    ```
 
-- Run the following command from the project root:
+4. **Start the Project**
 
     ```bash
     pnpm run dev
     ```
+
+## Development Workflow
+
+1. The project uses a monorepo structure with pnpm workspaces
+2. Client and server code are in separate packages under `apps/`
+3. Shared code is in the `packages/` directory
+4. Changes to shared code will automatically trigger rebuilds of dependent packages
+5. API routes are implemented as Vercel serverless functions in the `api/` directory
+6. E2E tests are located in `apps/client/e2e/` directory
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
