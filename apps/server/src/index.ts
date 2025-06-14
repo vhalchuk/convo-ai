@@ -30,7 +30,7 @@ export const makeApp = async (ctx: Context) => {
 
     app.use(corsMiddleware(env.ALLOWED_ORIGIN));
     app.use(express.json());
-    app.use(router);
+    app.use("/api", router);
     app.use(requestErrorHandler);
 
     return app;
