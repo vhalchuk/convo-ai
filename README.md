@@ -97,5 +97,3 @@ Convo AI is an open-source project that lets you run a custom ChatGPT locally us
 ## License
 
 This project is licensed under the MIT License.
-
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/vhalchuk/convo-ai?utm_source=oss&utm_medium=github&utm_campaign=vhalchuk%2Fconvo-ai&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
