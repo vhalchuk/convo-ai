@@ -6,12 +6,15 @@ import { chat } from "@/api.ts";
 import { MessageForm, type OnSubmit } from "@/components/message-form";
 import { Messages } from "@/components/messages";
 import { db } from "@/lib/db.ts";
+import { useStreamingStore } from "@/store/streaming";
 
 export function ConversationView() {
     const navigate = useNavigate();
     const { conversationId } = useParams<{ conversationId?: string }>();
 
     invariant(conversationId, "conversationId must be defined");
+
+    const isStreaming = useStreamingStore.getState().isStreaming;
 
     useEffect(() => {
         void db.conversations.get(conversationId).then((conversation) => {
@@ -30,6 +33,11 @@ export function ConversationView() {
     );
 
     const handleSubmit: OnSubmit = async ({ content, model }) => {
+        if (isStreaming) {
+            console.warn("Cannot submit while streaming is active");
+            return;
+        }
+
         const messageId = crypto.randomUUID();
 
         await db.transaction("rw", db.conversations, db.messages, async () => {
