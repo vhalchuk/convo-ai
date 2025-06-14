@@ -2,8 +2,13 @@ import { ConversationReqBody, ROLES, SSE_EVENTS } from "@convo-ai/shared";
 import { env } from "@/env";
 import { PostEventSource } from "@/lib/PostEventSource.ts";
 import { db } from "@/lib/db.ts";
+import { useStreamingStore } from "@/store/streaming";
 
 export async function chat(conversationId: string, body: ConversationReqBody) {
+    const { setStreaming } = useStreamingStore.getState();
+
+    setStreaming(true);
+
     const eventSource = new PostEventSource(
         `${env.CLIENT_API_DOMAIN ?? ""}/conversation`,
         {
@@ -61,6 +66,7 @@ export async function chat(conversationId: string, body: ConversationReqBody) {
     eventSource.addEventListener(SSE_EVENTS.MESSAGE, (event) => {
         if (event.data === "[DONE]") {
             eventSource.close();
+            setStreaming(false);
         }
     });
 
